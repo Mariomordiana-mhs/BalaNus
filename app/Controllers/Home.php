@@ -4,8 +4,13 @@ namespace App\Controllers;
 
 class Home extends BaseController
 {
-    public function index(): string
+    public function homepage()
     {
-        return view('welcome_message');
+        // CEK LOGIN
+        if (!session()->get('login')) {
+            return redirect()->to('/login');
+        }
+
+        return view('homepage');
     }
 }
