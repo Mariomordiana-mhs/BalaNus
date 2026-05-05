@@ -63,7 +63,7 @@
                     
                     <div class="input-group">
                         <i class="fa-regular fa-user"></i>
-                        <input type="text" name="fullname" placeholder="Full Name" required>
+                        <input type="text" name="username" placeholder="Username" required>
                     </div>
 
                     <div class="input-group">

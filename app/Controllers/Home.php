@@ -14,9 +14,15 @@ class Home extends BaseController
     {
         $session = session();
         
-        // Cek apakah belum login ATAU rolenya bukan admin
-        if (!$session->get('logged_in') || $session->get('role') !== 'admin') {
-            return redirect()->to('/login')->with('error', 'Akses ditolak! Anda bukan Admin.');
+        // Cek apakah belum login
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        
+        // Cek apakah rolenya BUKAN admin
+        if ($session->get('role') !== 'admin') {
+            // Jika user biasa mencoba masuk admin, kembalikan ke halaman member
+            return redirect()->to('/member')->with('error', 'Akses ditolak! Anda bukan Admin.');
         }
 
         // Tampilkan halaman admin
@@ -28,9 +34,15 @@ class Home extends BaseController
     {
         $session = session();
         
-        // Cek apakah belum login ATAU rolenya bukan member
-        if (!$session->get('logged_in') || $session->get('role') !== 'member') {
-            return redirect()->to('/login')->with('error', 'Akses ditolak! Anda bukan Member.');
+        // Cek apakah belum login
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        
+        // PENTING: Cek role menggunakan 'user' sesuai data di database
+        if ($session->get('role') !== 'member') {
+            // Jika admin mencoba masuk member, kembalikan ke halaman admin
+            return redirect()->to('/admin')->with('error', 'Halaman ini khusus pengguna biasa.');
         }
 
         // Tampilkan halaman member
