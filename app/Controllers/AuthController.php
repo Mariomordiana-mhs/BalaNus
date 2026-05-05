@@ -7,54 +7,89 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class AuthController extends BaseController
 {
-    function __construct()
+    public function __construct()
     {
-        helper('form');
+        // Memuat helper form dan url
+        helper(['form', 'url']);
     }
 
+    // --- 1. MENAMPILKAN HALAMAN LOGIN ---
+    public function index()
+    {
+        // Memanggil file app/Views/v_login.php
+        return view('v_login');
+    }
+
+    // --- 2. PROSES VALIDASI LOGIN ---
     public function auth()
     {
         $session = session();
-
         $username = $this->request->getPost('username');
         $password = $this->request->getPost('password');
 
-        // CONTOH SEMENTARA (BELUM DATABASE)
-        if ($username == "admin" && $password == "123") {
+        // --- SIMULASI LOGIN MULTI-ROLE (Belum pakai Database) ---
 
+        // SKENARIO 1: LOGIN SEBAGAI ADMIN (Harus persis "admin")
+        if ($username === "admin" && $password === "123") {
             $session->set([
-                'username' => $username,
-                'login' => true
+                'username'  => $username,
+                'role'      => 'admin', 
+                'logged_in' => true
             ]);
+            
+            // Redirect ke halaman khusus admin
+            return redirect()->to(base_url('admin'));
 
-            return redirect()->to('/homepage');
+        // SKENARIO 2: LOGIN SEBAGAI MEMBER (Username bebas, yang penting password "123")
+        } elseif ($password === "123") {
+            $session->set([
+                'username'  => $username, // Menyimpan nama apapun yang diketik di form
+                'role'      => 'member', 
+                'logged_in' => true
+            ]);
+            
+            // Redirect ke halaman khusus member
+            return redirect()->to(base_url('member'));
 
+        // JIKA PASSWORD SALAH
         } else {
-            return redirect()->to('/login')->with('error', 'Username atau password salah');
+            // Redirect kembali ke login dengan membawa pesan error (Flashdata)
+            return redirect()->to(base_url('login'))->with('error', 'Username atau password salah!');
         }
     }
 
-    // HALAMAN REGISTER
+    // --- 3. MENAMPILKAN HALAMAN REGISTER ---
     public function register()
     {
-        return view('v_register');
+        // Memanggil file app/Views/register.php
+        return view('register');
     }
 
-    // PROSES REGISTER
+    // --- 4. PROSES SIMPAN DATA REGISTER ---
     public function saveRegister()
     {
-        $username = $this->request->getPost('username');
+        // Mengambil data dari form register.php
+        $fullname = $this->request->getPost('fullname');
         $email    = $this->request->getPost('email');
         $password = $this->request->getPost('password');
 
-        // SEMENTARA (BELUM SIMPAN DATABASE)
-        return redirect()->to('/login')->with('success', 'Registrasi berhasil, silakan login');
+        /* 
+         * LOGIKA DATABASE SEMENTARA DIKOSONGKAN
+         * Nanti Anda bisa memasukkan perintah Model untuk Insert/Save ke MySQL di sini.
+         */
+
+        // Setelah proses register sukses (simulasi), arahkan ke halaman login
+        // dengan membawa pesan sukses (Flashdata)
+        return redirect()->to(base_url('login'))->with('success', 'Registrasi berhasil! Silakan login dengan akun Anda.');
     }
 
-    // LOGOUT
+    // --- 5. PROSES LOGOUT ---
     public function logout()
     {
-        session()->destroy();
-        return redirect()->to('/login');
+        $session = session();
+        $session->destroy(); // Menghapus semua session
+        
+        // Arahkan kembali ke login dengan pesan
+        return redirect()->to(base_url('login'))->with('success', 'Anda telah berhasil logout.');
     }
 }

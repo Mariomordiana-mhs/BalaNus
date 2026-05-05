@@ -5,13 +5,20 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'LoginController::index');
+// Arahkan rute default ke halaman login
+$routes->get('/', 'AuthController::index');
 
-$routes->get('/login', 'LoginController::index');
-$routes->post('/login-process', 'LoginController::auth');
+// Rute untuk proses Login
+$routes->get('/login', 'AuthController::index');
+$routes->post('/login-process', 'AuthController::auth');
 
-$routes->get('/register', 'LoginController::register');
-$routes->post('/register-process', 'LoginController::saveRegister');
+// Rute untuk proses Register
+$routes->get('/register', 'AuthController::register');
+$routes->post('/register-process', 'AuthController::saveRegister');
 
-$routes->get('/homepage', 'Home::homepage');
-$routes->get('/logout', 'LoginController::logout');
+// Rute untuk Logout
+$routes->get('/logout', 'AuthController::logout');
+
+// Rute untuk Halaman Multi-Role (Setelah berhasil login)
+$routes->get('/admin', 'Home::admin');
+$routes->get('/member', 'Home::member');
