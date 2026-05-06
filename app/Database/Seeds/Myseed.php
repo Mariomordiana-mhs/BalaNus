@@ -16,7 +16,7 @@ class Myseed extends Seeder
                 'role'     => 'admin',
             ],
             [
-                'username' => 'user1',
+                'username' => '',
                 'email'    => 'user1@gmail.com',
                 'password' => password_hash('123', PASSWORD_DEFAULT),
                 'role'     => 'member',
