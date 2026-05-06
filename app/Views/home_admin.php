@@ -107,22 +107,22 @@
         </div>
         
         <div class="menu-wrapper">
-            <a href="#" class="menu-item active"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
+            <a href="javascript:void(0)" class="menu-item active"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
             
             <div class="menu-title">KOLEKSI</div>
-            <a href="#" class="menu-item"><i class="fa-solid fa-book"></i> Buku</a>
-            <a href="#" class="menu-item"><i class="fa-solid fa-cubes"></i> Eksemplar</a>
+            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-book"></i> Buku</a>
+            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-cubes"></i> Eksemplar</a>
             
             <div class="menu-title">ANGGOTA</div>
-            <a href="#" class="menu-item"><i class="fa-solid fa-users"></i> Anggota</a>
+            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-users"></i> Anggota</a>
             
             <div class="menu-title">TRANSAKSI</div>
-            <a href="#" class="menu-item"><i class="fa-solid fa-right-left"></i> Peminjaman</a>
-            <a href="#" class="menu-item"><i class="fa-solid fa-rotate-left"></i> Pengembalian</a>
-            <a href="#" class="menu-item"><i class="fa-solid fa-money-bill-wave"></i> Denda</a>
+            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-right-left"></i> Peminjaman</a>
+            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-rotate-left"></i> Pengembalian</a>
+            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-money-bill-wave"></i> Denda</a>
             
             <div class="menu-title">LAPORAN</div>
-            <a href="#" class="menu-item"><i class="fa-solid fa-chart-simple"></i> Laporan</a>
+            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-chart-simple"></i> Laporan</a>
         </div>
 
         <div class="user-profile-sidebar" onclick="window.location.href='<?= base_url('logout') ?>'">
@@ -165,7 +165,7 @@
                             <h3>Total Buku</h3>
                             <h2>1.248</h2>
                         </div>
-                        <a href="#" class="link">Lihat semua ></a>
+                        <a href="javascript:void(0)" class="link">Lihat semua ></a>
                     </div>
                     <div class="stat-icon" style="background:#e0e7ff; color:var(--primary);"><i class="fa-solid fa-book"></i></div>
                 </div>
@@ -175,7 +175,7 @@
                             <h3>Total Eksemplar</h3>
                             <h2 style="color:#28a745;">2.562</h2>
                         </div>
-                        <a href="#" class="link">Lihat semua ></a>
+                        <a href="javascript:void(0)" class="link">Lihat semua ></a>
                     </div>
                     <div class="stat-icon" style="background:#e6ffef; color:#28a745;"><i class="fa-solid fa-cubes"></i></div>
                 </div>
@@ -185,7 +185,7 @@
                             <h3>Peminjaman Aktif</h3>
                             <h2 style="color:#fd7e14;">156</h2>
                         </div>
-                        <a href="#" class="link">Lihat semua ></a>
+                        <a href="javascript:void(0)" class="link">Lihat semua ></a>
                     </div>
                     <div class="stat-icon" style="background:#fff4e6; color:#fd7e14;"><i class="fa-solid fa-user-group"></i></div>
                 </div>
@@ -195,7 +195,7 @@
                             <h3>Denda Belum Dibayar</h3>
                             <h2 style="color:#d9534f; font-size:20px;">Rp 2.450.000</h2>
                         </div>
-                        <a href="#" class="link">Lihat semua ></a>
+                        <a href="javascript:void(0)" class="link">Lihat semua ></a>
                     </div>
                     <div class="stat-icon" style="background:#ffeaea; color:#d9534f;"><i class="fa-solid fa-wallet"></i></div>
                 </div>
@@ -207,7 +207,7 @@
                 <div class="card-panel">
                     <div class="panel-header">
                         <h3>Peminjaman Terbaru</h3>
-                        <a href="#">Lihat semua</a>
+                        <a href="javascript:void(0)">Lihat semua</a>
                     </div>
                     <table>
                         <thead>
@@ -226,7 +226,7 @@
                                 <td>
                                     <div class="user-td">
                                         <div class="user-avatar">B</div>
-                                        <div>Budi Santoso<br><span style="color:#888;font-size:11px;">A001</span></div>
+                                        <div>Mario Mordiana<br><span style="color:#888;font-size:11px;">A001</span></div>
                                     </div>
                                 </td>
                                 <td>Atomic Habits<br><span style="color:#888;font-size:11px;">James Clear</span></td>
@@ -239,7 +239,7 @@
                                 <td>
                                     <div class="user-td">
                                         <div class="user-avatar">D</div>
-                                        <div>Dewi Lestari<br><span style="color:#888;font-size:11px;">A004</span></div>
+                                        <div>Muhammad Yunus Alfian<br><span style="color:#888;font-size:11px;">A004</span></div>
                                     </div>
                                 </td>
                                 <td>Negeri 5 Menara<br><span style="color:#888;font-size:11px;">Ahmad Fuadi</span></td>
@@ -255,7 +255,7 @@
                 <div class="card-panel">
                     <div class="panel-header">
                         <h3>Buku Terlambat</h3>
-                        <a href="#">Lihat semua</a>
+                        <a href="javascript:void(0)">Lihat semua</a>
                     </div>
                     <div class="book-list-item">
                         <div class="book-cover" style="background:#1e3c72; display:flex; align-items:center; justify-content:center; color:white;"><i class="fa-solid fa-book"></i></div>
@@ -271,19 +271,26 @@
                 </div>
             </div>
 
-            <!-- CHARTS -->
+            <!-- CHARTS (SUDAH DIPERBAIKI UKURANNYA) -->
             <div class="content-grid">
-                <div class="card-panel">
-                    <div class="panel-header">
+                <div class="card-panel" style="height: 350px; display: flex; flex-direction: column;">
+                    <div class="panel-header" style="margin-bottom: 10px;">
                         <h3>Statistik Peminjaman <span style="font-size:12px;font-weight:400;color:var(--text-muted);">(6 Bulan Terakhir)</span></h3>
                     </div>
-                    <canvas id="barChart" height="100"></canvas>
+                    <!-- Pembungkus ketat untuk Canvas agar tidak melar -->
+                    <div style="position: relative; flex-grow: 1; min-height: 0;">
+                        <canvas id="barChart"></canvas>
+                    </div>
                 </div>
-                <div class="card-panel">
-                    <div class="panel-header">
+                
+                <div class="card-panel" style="height: 350px; display: flex; flex-direction: column;">
+                    <div class="panel-header" style="margin-bottom: 10px;">
                         <h3>Ringkasan Denda</h3>
                     </div>
-                    <canvas id="donutChart" height="200"></canvas>
+                    <!-- Pembungkus ketat untuk Canvas agar tidak melar -->
+                    <div style="position: relative; flex-grow: 1; min-height: 0;">
+                        <canvas id="donutChart"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -303,7 +310,7 @@
                     { label: 'Pengembalian', data: [90, 130, 140, 120, 100, 80], backgroundColor: '#a3c4f9', borderRadius: 4 }
                 ]
             },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
         });
 
         // Data Grafik Donut
