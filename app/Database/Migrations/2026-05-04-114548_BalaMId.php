@@ -25,6 +25,11 @@ class CreateUsers extends Migration
                 'constraint' => 100,
                 'unique'     => true,
             ],
+            'no_telp' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 20,
+                'unique'     => true,
+            ],
             'password' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,

@@ -57,7 +57,7 @@
 
         <div class="right-panel">
             <div class="form-container">
-                <h2>Welcome Back!</h2>
+                <h2>Welcome to BalaNus</h2>
                 <p class="subtitle">Log in to your account</p>
 
                 <?php if(session()->getFlashdata('success')): ?>

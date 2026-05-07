@@ -78,6 +78,7 @@ class AuthController extends BaseController
         $rules = [
             'username' => 'required|min_length[3]|is_unique[users.username]',
             'email'    => 'required|valid_email|is_unique[users.email]',
+            'no_telp'  => 'required|min_length[10]|max_length[15]|is_unique[users.no_telp]',
             'password' => 'required|min_length[3]'
         ];
 
@@ -90,6 +91,7 @@ class AuthController extends BaseController
         $data = [
             'username' => $this->request->getPost('username'),
             'email'    => $this->request->getPost('email'),
+            'no_telp'  => $this->request->getPost('no_telp'),
             // Password WAJIB di-hash demi keamanan
             'password' => password_hash((string) $this->request->getPost('password'), PASSWORD_DEFAULT),
             'role'     => 'member' // Setiap yang mendaftar via form otomatis menjadi 'member' biasa

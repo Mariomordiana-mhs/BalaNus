@@ -23,6 +23,11 @@
         .form-container { width: 100%; max-width: 320px; text-align: center; }
         .form-container h2 { font-size: 24px; color: #222; margin-bottom: 5px; }
         .form-container p.subtitle { font-size: 13px; color: #666; margin-bottom: 25px; }
+        
+        /* Error Message Styling Khusus Register */
+        .alert { padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 12px; text-align: left; }
+        .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
         .input-group { position: relative; margin-bottom: 15px; }
         .input-group i { position: absolute; top: 50%; left: 15px; transform: translateY(-50%); color: #aaa; font-size: 14px; }
         .input-group input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; outline: none; transition: 0.3s; }
@@ -57,18 +62,28 @@
                 <h2>Hello!</h2>
                 <p class="subtitle">Sign Up to Get Started</p>
 
-                <!-- Form Register (Menggunakan base_url) -->
+                <!-- Tambahan Flashdata untuk menampilkan error jika validasi gagal -->
+                <?php if(session()->getFlashdata('error')): ?>
+                    <div class="alert alert-error"><?= session()->getFlashdata('error') ?></div>
+                <?php endif; ?>
+
                 <form action="<?= base_url('register-process') ?>" method="post">
                     <?= csrf_field() ?>
                     
                     <div class="input-group">
                         <i class="fa-regular fa-user"></i>
-                        <input type="text" name="username" placeholder="Username" required>
+                        <input type="text" name="username" placeholder="Username" value="<?= old('username') ?>" required>
                     </div>
 
                     <div class="input-group">
                         <i class="fa-regular fa-envelope"></i>
-                        <input type="email" name="email" placeholder="Email Address" required>
+                        <input type="email" name="email" placeholder="Email Address" value="<?= old('email') ?>" required>
+                    </div>
+
+                    <!-- BARU: Input Nomor WhatsApp -->
+                    <div class="input-group">
+                        <i class="fa-brands fa-whatsapp" style="font-size: 16px; color: #25D366;"></i>
+                        <input type="tel" name="no_telp" placeholder="No. WhatsApp (Cth: 0812...)" value="<?= old('no_telp') ?>" required>
                     </div>
 
                     <div class="input-group">
@@ -86,7 +101,6 @@
                     Sign Up with Google
                 </button>
 
-                <!-- Link Login (Menggunakan base_url) -->
                 <p class="login-link">Sudah punya akun? <a href="<?= base_url('login') ?>">Login</a></p>
             </div>
         </div>
