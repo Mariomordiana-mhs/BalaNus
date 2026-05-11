@@ -17,6 +17,18 @@ $routes->post('register-process', 'AuthController::saveRegister');
 $routes->get('logout', 'AuthController::logout');
 
 // 2. Rute Terproteksi (Hanya bisa diakses jika sudah Login)
-// Kita tambahkan ['filter' => 'auth'] agar aman
 $routes->get('admin', 'Home::admin', ['filter' => 'auth']);
 $routes->get('member', 'Home::member', ['filter' => 'auth']);
+
+// 3. Rute Aksi Peminjaman (Terproteksi)
+$routes->get('peminjaman/batal/(:num)', 'Home::batalkan/$1', ['filter' => 'auth']);
+$routes->get('peminjaman/detail/(:num)', 'Home::detail/$1', ['filter' => 'auth']);
+
+// Rute untuk halaman Katalog Buku
+$routes->get('katalog', 'Home::katalog', ['filter' => 'auth']);
+
+// Rute untuk memproses pengajuan pinjam baru
+$routes->get('peminjaman/ajukan/(:num)', 'Home::ajukan/$1', ['filter' => 'auth']);
+
+// Rute untuk melihat semua riwayat peminjaman (Halaman Tabel Lengkap)
+$routes->get('peminjaman/saya', 'Home::riwayat_saya', ['filter' => 'auth']);

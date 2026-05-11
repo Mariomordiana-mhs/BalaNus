@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Member - BalaNus</title>
-    <!-- Google Fonts -->
+    <title><?= esc($title ?? 'Dashboard Member - BalaNus') ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <style>
@@ -47,7 +45,7 @@
         .stat-card { background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
         .stat-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; }
         .stat-info h3 { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-        .stat-info h2 { font-size: 24px; color: var(--primary); font-weight: 600; margin-top: 5px; }
+        .stat-info h2 { font-size: 24px; font-weight: 600; margin-top: 5px; }
         
         /* GRID BAWAH */
         .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; }
@@ -71,11 +69,40 @@
         .book-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
         .book-info p { font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
         .book-action a { font-size: 11px; color: var(--primary); font-weight: 500; text-decoration: none; }
+
+        /* MODAL POP-UP CUSTOM */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
+            backdrop-filter: blur(2px);
+        }
+        .modal-box {
+            background: white; padding: 30px; border-radius: 12px; text-align: center;
+            max-width: 400px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: modalFadeIn 0.3s ease;
+
+            -webkit-user-select: none; 
+            -moz-user-select: none; 
+            -ms-user-select: none; 
+            user-select: none;
+        }
+        @keyframes modalFadeIn { 
+            from { opacity: 0; transform: translateY(-20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .modal-icon { font-size: 50px; color: #d9534f; margin-bottom: 15px; }
+        .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; color: var(--text-dark); }
+        .modal-text { font-size: 13px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
+        .modal-actions { display: flex; justify-content: center; gap: 15px; }
+        .btn-modal { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; text-decoration: none; font-size: 13px; transition: 0.2s; }
+        .btn-modal-cancel { background: #f5f7fb; color: #333; border: 1px solid var(--border); }
+        .btn-modal-cancel:hover { background: #eaedf2; }
+        .btn-modal-confirm { background: #d9534f; color: white; }
+        .btn-modal-confirm:hover { background: #c9302c; }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="logo-area">
             <i class="fa-solid fa-book-open-reader"></i>
@@ -84,9 +111,9 @@
         </div>
         
         <div class="menu-wrapper">
-            <a href="javascript:void(0)" class="menu-item active"><i class="fa-solid fa-house"></i> Beranda</a>
+            <a href="<?= base_url('member') ?>" class="menu-item active"><i class="fa-solid fa-house"></i> Beranda</a>
             <div class="menu-title">PERPUSTAKAAN</div>
-            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-magnifying-glass"></i> Katalog Buku</a>
+            <a href="<?= base_url('katalog') ?>" class="menu-item"><i class="fa-solid fa-magnifying-glass"></i> Katalog Buku</a>
             <div class="menu-title">AKTIVITAS SAYA</div>
             <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-book-bookmark"></i> Peminjaman & Antrean</a>
             <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Baca</a>
@@ -95,15 +122,13 @@
         <div class="user-profile-sidebar" onclick="window.location.href='<?= base_url('logout') ?>'">
             <i class="fa-solid fa-user"></i>
             <div class="user-info">
-                <p><?= session()->get('username') ?? 'Mario Mordiana' ?></p>
+                <p><?= esc($username ?? 'Member') ?></p>
                 <span>Anggota Aktif (Logout)</span>
             </div>
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="main-content">
-        <!-- TOPBAR -->
         <header class="topbar">
             <?php 
                 date_default_timezone_set('Asia/Jakarta');
@@ -112,10 +137,9 @@
                 elseif ($jam >= 11 && $jam < 15) { $salam = 'Siang'; }
                 elseif ($jam >= 15 && $jam < 18) { $salam = 'Sore'; }
                 else { $salam = 'Malam'; }
-                $nama_user = session()->get('username') ?? 'Member';
             ?>
             <div class="header-title">
-                <h1>Selamat <?= $salam ?>, <?= $nama_user ?>!</h1>
+                <h1>Selamat <?= $salam ?>, <?= esc($username ?? 'Member') ?>!</h1>
                 <p>Selamat membaca buku pilihanmu hari ini.</p>
             </div>
             <div class="topbar-right">
@@ -130,16 +154,21 @@
             </div>
         </header>
 
-        <!-- DASHBOARD BODY -->
         <div class="dashboard-body">
 
-            <!-- 3 CARDS KHUSUS MEMBER -->
+            <?php if(session()->getFlashdata('success')): ?>
+                <div style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb; display: flex; align-items: center; justify-content: space-between;">
+                    <span><i class="fa-solid fa-circle-check" style="margin-right: 8px;"></i> <?= session()->getFlashdata('success'); ?></span>
+                    <button onclick="this.parentElement.style.display='none';" style="background: none; border: none; font-size: 16px; cursor: pointer; color: #155724;">&times;</button>
+                </div>
+            <?php endif; ?>
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <div>
                         <div class="stat-info">
                             <h3>Menunggu Persetujuan</h3>
-                            <h2 style="color:#f5a623;">1 Pengajuan</h2>
+                            <h2 style="color:#f5a623;"><?= esc($menunggu_acc ?? 0) ?> Pengajuan</h2>
                         </div>
                     </div>
                     <div class="stat-icon" style="background:#fff8e6; color:#f5a623;"><i class="fa-solid fa-hourglass-half"></i></div>
@@ -148,7 +177,7 @@
                     <div>
                         <div class="stat-info">
                             <h3>Buku Sedang Dipinjam</h3>
-                            <h2 style="color:var(--primary);">2 Buku</h2>
+                            <h2 style="color:var(--primary);"><?= esc($sedang_dipinjam ?? 0) ?> Buku</h2>
                         </div>
                     </div>
                     <div class="stat-icon" style="background:#e0e7ff; color:var(--primary);"><i class="fa-solid fa-book-open"></i></div>
@@ -157,14 +186,13 @@
                     <div>
                         <div class="stat-info">
                             <h3>Total Buku Dibaca</h3>
-                            <h2 style="color:#28a745;">15 Buku</h2>
+                            <h2 style="color:#28a745;"><?= esc($total_dibaca ?? 0) ?> Buku</h2>
                         </div>
                     </div>
                     <div class="stat-icon" style="background:#e6ffef; color:#28a745;"><i class="fa-solid fa-check-double"></i></div>
                 </div>
             </div>
 
-            <!-- GRID KONTEN BAWAH -->
             <div class="content-grid">
                 <div class="card-panel">
                     <div class="panel-header">
@@ -181,24 +209,49 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td style="font-weight: 600;">Harry Potter: Sorcerer's Stone</td>
-                                <td style="font-size: 12px;">Diajukan: 06 Mei 2026</td>
-                                <td><span class="status-badge bg-warning">Menunggu ACC</span></td>
-                                <td><a href="javascript:void(0)" style="color:#d9534f; font-size:12px; text-decoration:none;">Batalkan</a></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 600;">Filosofi Teras</td>
-                                <td style="font-size: 12px;">Tenggat: 08 Mei 2026</td>
-                                <td><span class="status-badge bg-blue">Dipinjam</span></td>
-                                <td><a href="javascript:void(0)" style="color:var(--text-muted); font-size:12px; text-decoration:none;">Detail</a></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 600;">Negeri 5 Menara</td>
-                                <td style="font-size: 12px;">Dikembalikan: 03 Mei 2026</td>
-                                <td><span class="status-badge bg-green">Selesai</span></td>
-                                <td><a href="javascript:void(0)" style="color:var(--text-muted); font-size:12px; text-decoration:none;">Detail</a></td>
-                            </tr>
+                            <?php if(empty($riwayat_pinjam)): ?>
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--text-muted);">Belum ada riwayat peminjaman saat ini.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($riwayat_pinjam as $row): ?>
+                                    <tr>
+                                        <td style="font-weight: 600;"><?= esc($row['judul_buku']); ?></td>
+                                        
+                                        <td style="font-size: 12px;">
+                                            <?php 
+                                            if ($row['status'] == 'Menunggu ACC') {
+                                                echo "Diajukan: " . date('d M Y', strtotime($row['tgl_pengajuan']));
+                                            } elseif ($row['status'] == 'Dipinjam') {
+                                                echo "Tenggat: " . date('d M Y', strtotime($row['tenggat_waktu']));
+                                            } elseif ($row['status'] == 'Selesai') {
+                                                echo "Dikembalikan: " . date('d M Y', strtotime($row['tgl_dikembalikan']));
+                                            }
+                                            ?>
+                                        </td>
+                                        
+                                        <td>
+                                            <?php 
+                                            $badge_class = '';
+                                            if ($row['status'] == 'Menunggu ACC') $badge_class = 'bg-warning';
+                                            if ($row['status'] == 'Dipinjam') $badge_class = 'bg-blue';
+                                            if ($row['status'] == 'Selesai') $badge_class = 'bg-green';
+                                            ?>
+                                            <span class="status-badge <?= $badge_class; ?>">
+                                                <?= esc($row['status']); ?>
+                                            </span>
+                                        </td>
+                                        
+                                        <td>
+                                            <?php if ($row['status'] == 'Menunggu ACC'): ?>
+                                                <a href="#" class="btn-batal" style="color:#d9534f; font-size:12px; text-decoration:none; font-weight:600;" onclick="tampilkanModalBatal('<?= base_url('peminjaman/batal/' . $row['id_peminjaman']); ?>'); return false;">Batalkan</a>
+                                            <?php else: ?>
+                                                <a href="<?= base_url('peminjaman/detail/' . $row['id_peminjaman']); ?>" style="color:var(--text-muted); font-size:12px; text-decoration:none;">Detail</a>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -206,7 +259,7 @@
                 <div class="card-panel">
                     <div class="panel-header">
                         <h3>Tambahan Terbaru</h3>
-                        <a href="javascript:void(0)" style="font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 500;">Katalog</a>
+                        <a href="<?= base_url('katalog') ?>" style="font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 500;">Katalog</a>
                     </div>
                     <div class="book-item">
                         <div class="book-cover"><i class="fa-solid fa-book"></i></div>
@@ -228,5 +281,28 @@
             </div>
         </div>
     </main>
+
+    <div id="modalBatal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+            <h3 class="modal-title">Batalkan Pengajuan?</h3>
+            <p class="modal-text">Apakah Anda yakin ingin membatalkan dan menghapus pengajuan peminjaman buku ini? Tindakan ini tidak dapat dikembalikan.</p>
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-cancel" onclick="tutupModalBatal()">Kembali</button>
+                <a href="#" id="btnKonfirmasiBatal" class="btn-modal btn-modal-confirm">Ya, Batalkan</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function tampilkanModalBatal(urlHapus) {
+            document.getElementById('modalBatal').style.display = 'flex';
+            document.getElementById('btnKonfirmasiBatal').href = urlHapus;
+        }
+
+        function tutupModalBatal() {
+            document.getElementById('modalBatal').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
