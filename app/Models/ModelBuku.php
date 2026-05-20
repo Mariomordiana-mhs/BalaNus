@@ -7,26 +7,26 @@ use CodeIgniter\Model;
 class ModelBuku extends Model
 {
     // --- PENGATURAN TABEL ---
-    protected $table            = 'buku';      // Diubah dari 'modelbukus'
-    protected $primaryKey       = 'id_buku';   // Diubah dari 'id'
+    protected $table            = 'buku';      
+    protected $primaryKey       = 'id_buku';   
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     
-    // Kolom yang ada di tabel buku
-    protected $allowedFields    = ['judul_buku', 'penulis', 'isbn', 'kategori', 'stok'];
+    // Kolom yang ada di tabel buku (Sudah ditambah 'cover' dan 'penerbit' untuk kebutuhan API & Upload)
+    protected $allowedFields    = ['judul_buku', 'penulis', 'isbn', 'kategori', 'stok', 'cover', 'penerbit'];
 
     // Konfigurasi standar
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
-    protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
+    protected $useTimestamps          = false;
+    protected $dateFormat             = 'datetime';
 
 
     // --- FUNGSI CUSTOM UNTUK PENCARIAN KATALOG ---
     
-    // Method untuk menampilkan semua buku sekaligus filter pencarian
+    // Method untuk menampilkan semua buku sekaligus filter pencarian di halaman katalog member
     public function getKatalog($keyword = null)
     {
         if ($keyword) {

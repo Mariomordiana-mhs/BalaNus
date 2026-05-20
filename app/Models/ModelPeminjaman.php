@@ -41,10 +41,11 @@ class ModelPeminjaman extends Model
             ->getResultArray();
     }
 
-    // --- 3. FUNGSI UNTUK HALAMAN DETAIL (INI YANG TADI HILANG) ---
+    // --- 3. FUNGSI UNTUK HALAMAN DETAIL (SUDAH DIPERBAIKI) ---
     public function getDetailPeminjaman($id_peminjaman, $id_user)
     {
-        return $this->select('peminjaman.*, buku.judul_buku, buku.penulis')
+        // TAMBAHAN: Menyertakan kolom buku.cover dan buku.isbn agar datanya ikut terangkut ke View
+        return $this->select('peminjaman.*, buku.judul_buku, buku.penulis, buku.cover, buku.isbn')
             ->join('buku', 'buku.id_buku = peminjaman.id_buku')
             ->where('peminjaman.id_peminjaman', $id_peminjaman)
             ->where('peminjaman.id_user', $id_user)

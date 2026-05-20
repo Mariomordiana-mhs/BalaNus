@@ -77,17 +77,39 @@
                     </a>
                 </div>
                 
-                <div style="display: flex; gap: 30px;">
-                    <div style="width: 150px; height: 220px; background: #f0f4ff; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 60px; color: var(--primary); border: 1px solid #dce4ff;">
-                        <i class="fa-solid fa-book-journal-whills"></i>
-                    </div>
+           <div style="display: flex; gap: 30px;">
+                <div style="width: 150px; height: 220px; background: #f0f4ff; border-radius: 8px; display: flex; justify-content: center; align-items: center; border: 1px solid #dce4ff; overflow: hidden; padding: 0;">
                     
-                    <div style="flex: 1;">
-                        <h2 style="margin-bottom: 5px; font-size: 24px;"><?= esc($detail['judul_buku']); ?></h2>
-                        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 10px;">
-                            <i class="fa-solid fa-pen-nib" style="margin-right: 5px;"></i> Penulis: <?= esc($detail['penulis'] ?? 'Tidak diketahui'); ?>
-                        </p>
+                    <?php 
+                    // Logika Pintar Pengecekan Cover
+                    $coverSrc = null;
+                    if (!empty($detail['cover']) && strpos($detail['cover'], 'http') !== false) {
+                        // 1. Jika di database tersimpan sebagai Link API langsung (http...)
+                        $coverSrc = $detail['cover'];
+                    } elseif (!empty($detail['isbn'])) {
+                        // 2. Jika punya ISBN, tembak ke Open Library
+                        $coverSrc = "https://covers.openlibrary.org/b/isbn/" . esc($detail['isbn']) . "-L.jpg";
+                    } elseif (!empty($detail['cover']) && $detail['cover'] !== 'default.png') {
+                        // 3. Jika file gambar lokal (upload manual)
+                        $coverSrc = base_url('uploads/covers/' . esc($detail['cover']));
+                    }
+                    ?>
 
+                    <?php if($coverSrc): ?>
+                        <img src="<?= $coverSrc ?>" alt="Cover Buku" style="width: 100%; height: 100%; object-fit: cover;">
+                    <?php else: ?>
+                        <div style="font-size: 60px; color: var(--primary);">
+                            <i class="fa-solid fa-book-journal-whills"></i>
+                        </div>
+                    <?php endif; ?>
+
+                </div>
+                
+                <div style="flex: 1;">
+                    <h2 style="margin-bottom: 5px; font-size: 24px;"><?= esc($detail['judul_buku']); ?></h2>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 10px;">
+                        <i class="fa-solid fa-pen-nib" style="margin-right: 5px;"></i> Penulis: <?= esc($detail['penulis'] ?? 'Tidak diketahui'); ?>
+                    </p>
                         <table class="detail-table">
                             <tr>
                                 <td>Status Saat Ini</td>

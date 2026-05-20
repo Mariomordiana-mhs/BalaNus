@@ -21,7 +21,40 @@ class Home extends BaseController
         if ($session->get('role') !== 'admin') {
             return redirect()->to('/member')->with('error', 'Akses ditolak! Anda bukan Admin.');
         }
-        return view('home_admin'); 
+
+        // TAMBAHAN: Mengambil data pengajuan yang berstatus 'Menunggu ACC' secara live dari database
+        $db = \Config\Database::connect();
+        $builder = $db->table('peminjaman');
+        $builder->select('peminjaman.*, buku.judul_buku, users.username');
+        $builder->join('buku', 'buku.id_buku = peminjaman.id_buku');
+        $builder->join('users', 'users.id_user = peminjaman.id_user');
+        $builder->where('peminjaman.status', 'Menunggu ACC'); // Ambil yang butuh tindakan ACC saja
+        $builder->orderBy('peminjaman.tgl_pengajuan', 'ASC');
+        $peminjaman_baru = $builder->get()->getResultArray();
+
+        // Mengirimkan variabel $peminjaman_baru ke view dashboard admin
+        $data = [
+            'title' => 'Dashboard Admin - BalaNus',
+            'peminjaman_baru' => $peminjaman_baru
+        ];
+
+        return view('home_admin', $data); 
+    }
+
+    // --- API ENDPOINT UNTUK LIVE UPDATE DASHBOARD TANPA RELOAD ---
+    public function live_peminjaman()
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('peminjaman');
+        $builder->select('peminjaman.*, buku.judul_buku, users.username');
+        $builder->join('buku', 'buku.id_buku = peminjaman.id_buku');
+        $builder->join('users', 'users.id_user = peminjaman.id_user');
+        $builder->where('peminjaman.status', 'Menunggu ACC');
+        $builder->orderBy('peminjaman.tgl_pengajuan', 'ASC');
+        $peminjaman_baru = $builder->get()->getResultArray();
+
+        // Mengembalikan data mentah JSON agar dibaca JavaScript secara real-time
+        return $this->response->setJSON($peminjaman_baru);
     }
 
     // --- FUNGSI UNTUK HALAMAN MEMBER ---
@@ -39,11 +72,15 @@ class Home extends BaseController
 
         // Inisialisasi Model
         $modelPeminjaman = new ModelPeminjaman();
+        $modelBuku = new \App\Models\ModelBuku(); // TAMBAHAN: Panggil Model Buku
         $id_user = $session->get('id_user'); 
 
         // Mengambil data dari Model
         $rekap = $modelPeminjaman->getRekapStatus($id_user);
         $data_tabel = $modelPeminjaman->getRiwayatPeminjaman($id_user);
+        
+        // TAMBAHAN: Mengambil 3 Buku Terbaru
+        $buku_terbaru = $modelBuku->orderBy('id_buku', 'DESC')->findAll(3);
 
         // Menyiapkan data untuk dikirim ke View
         $data = [
@@ -51,7 +88,8 @@ class Home extends BaseController
             'menunggu_acc'    => $rekap['total_menunggu'] ?? 0,
             'sedang_dipinjam' => $rekap['total_dipinjam'] ?? 0,
             'total_dibaca'    => $rekap['total_dibaca'] ?? 0,
-            'riwayat_pinjam'  => $data_tabel
+            'riwayat_pinjam'  => $data_tabel,
+            'buku_terbaru'    => $buku_terbaru // TAMBAHAN: Masukkan data buku ke array
         ];
 
         return view('home_member', $data);
@@ -201,5 +239,46 @@ class Home extends BaseController
         ];
 
         return view('peminjaman_saya', $data);
+    }
+
+    // ====================================================================
+    // TAMBAHAN BARU: FUNGSI UNTUK ADMIN MENYETUJUI ATAU MENOLAK PINJAMAN
+    // ====================================================================
+
+    // Fungsi Meng-ACC Pengajuan
+    public function acc_peminjaman($id_peminjaman)
+    {
+        $modelPeminjaman = new \App\Models\ModelPeminjaman();
+        
+        // Update status menjadi 'Dipinjam' dan set tenggat waktu pengembalian (+7 hari)
+        $modelPeminjaman->update($id_peminjaman, [
+            'status'        => 'Dipinjam',
+            'tenggat_waktu' => date('Y-m-d', strtotime('+7 days'))
+        ]);
+
+        return redirect()->to('/admin')->with('success', 'Peminjaman berhasil disetujui (ACC)!');
+    }
+
+    // Fungsi Menolak Pengajuan
+    public function tolak_peminjaman($id_peminjaman)
+    {
+        $modelPeminjaman = new \App\Models\ModelPeminjaman();
+        $modelBuku = new \App\Models\ModelBuku();
+
+        $peminjaman = $modelPeminjaman->find($id_peminjaman);
+        if ($peminjaman) {
+            $id_buku = $peminjaman['id_buku'];
+            $buku = $modelBuku->find($id_buku);
+            
+            if ($buku) {
+                // Kembalikan stok fisik buku (+1) karena pengajuan tidak jadi diproses (ditolak)
+                $modelBuku->update($id_buku, ['stok' => $buku['stok'] + 1]);
+            }
+            
+            // Hapus pengajuan dari list peminjaman
+            $modelPeminjaman->delete($id_peminjaman);
+        }
+
+        return redirect()->to('/admin')->with('error', 'Pengajuan peminjaman telah ditolak.');
     }
 }

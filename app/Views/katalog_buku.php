@@ -151,8 +151,14 @@
                 <?php else: ?>
                     <?php foreach($buku as $b): ?>
                         <div class="buku-card">
-                            <div class="buku-cover">
-                                <i class="fa-solid fa-book"></i>
+                            <div class="buku-cover" style="padding: 0; background: transparent;">
+                                <?php if(!empty($b['cover']) && $b['cover'] != 'default.png'): ?>
+                                    <img src="<?= base_url('uploads/covers/' . esc($b['cover'])) ?>" alt="Cover Buku" style="width: 50%; height: 100%; object-fit: cover;">
+                                <?php else: ?>
+                                    <div style="width: 100%; height: 100%; background: #e0e7ff; display: flex; justify-content: center; align-items: center; font-size: 50px; color: var(--primary);">
+                                        <i class="fa-solid fa-book"></i>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <div class="buku-body">
                                 <span class="buku-kategori"><?= esc($b['kategori'] ?? 'Umum') ?></span>

@@ -8,23 +8,20 @@ class Myseed extends Seeder
 {
     public function run()
     {
-        $data = [
-            [
-                'username' => 'admin',
-                'email'    => 'admin@gmail.com',
-                'no_telp'  => '081111111111',
-                'password' => password_hash('123', PASSWORD_DEFAULT),
-                'role'     => 'admin',
-            ],
-            [
-                'username' => '',
-                'email'    => 'user1@gmail.com',
-                'no_telp'  => '082222222222', 
-                'password' => password_hash('123', PASSWORD_DEFAULT),
-                'role'     => 'member',
-            ],
-        ];
+        // Matikan pengecekan relasi sementara agar tidak error saat reset
+        $this->db->disableForeignKeyChecks();
 
-        $this->db->table('users')->insertBatch($data);
+        // Kosongkan data lama agar tidak duplikat
+        $this->db->table('peminjaman')->truncate();
+        $this->db->table('buku')->truncate();
+        $this->db->table('users')->truncate();
+
+        // Panggil ketiga Seeder secara berurutan
+        $this->call('UserSeeder');
+        $this->call('BukuSeeder');
+        $this->call('PeminjamanSeeder');
+
+        // Hidupkan kembali pengecekan relasi
+        $this->db->enableForeignKeyChecks();
     }
 }

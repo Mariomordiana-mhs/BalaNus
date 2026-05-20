@@ -40,6 +40,7 @@
         .notifications { position: relative; cursor: pointer; color: var(--text-muted); font-size: 18px; }
         .badge { position: absolute; top: -5px; right: -5px; background: red; color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold; }
         
+        /* DASHBOARD BODY */
         .dashboard-body { padding: 30px; }
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
         .stat-card { background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
@@ -65,7 +66,8 @@
         /* LIST BUKU */
         .book-item { display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
         .book-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-        .book-cover { width: 45px; height: 65px; background: #e0e7ff; border-radius: 4px; display: flex; justify-content: center; align-items: center; color: var(--primary); font-size: 20px;}
+        .book-cover { width: 45px; height: 65px; background: #e0e7ff; border-radius: 4px; display: flex; justify-content: center; align-items: center; color: var(--primary); font-size: 20px; overflow: hidden; }
+        .book-info { flex: 1; }
         .book-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
         .book-info p { font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
         .book-action a { font-size: 11px; color: var(--primary); font-weight: 500; text-decoration: none; }
@@ -80,7 +82,6 @@
             background: white; padding: 30px; border-radius: 12px; text-align: center;
             max-width: 400px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             animation: modalFadeIn 0.3s ease;
-
             -webkit-user-select: none; 
             -moz-user-select: none; 
             -ms-user-select: none; 
@@ -163,12 +164,12 @@
                 </div>
             <?php endif; ?>
 
-            <div class="stats-grid">
+            <div class="stats-grid" id="liveStatsContainer">
                 <div class="stat-card">
                     <div>
                         <div class="stat-info">
                             <h3>Menunggu Persetujuan</h3>
-                            <h2 style="color:#f5a623;"><?= esc($menunggu_acc ?? 0) ?> Pengajuan</h2>
+                            <h2 style="color:#f5a623;"><span id="statMenunggu"><?= esc($menunggu_acc ?? 0) ?></span> Pengajuan</h2>
                         </div>
                     </div>
                     <div class="stat-icon" style="background:#fff8e6; color:#f5a623;"><i class="fa-solid fa-hourglass-half"></i></div>
@@ -177,7 +178,7 @@
                     <div>
                         <div class="stat-info">
                             <h3>Buku Sedang Dipinjam</h3>
-                            <h2 style="color:var(--primary);"><?= esc($sedang_dipinjam ?? 0) ?> Buku</h2>
+                            <h2 style="color:var(--primary);"><span id="statDipinjam"><?= esc($sedang_dipinjam ?? 0) ?></span> Buku</h2>
                         </div>
                     </div>
                     <div class="stat-icon" style="background:#e0e7ff; color:var(--primary);"><i class="fa-solid fa-book-open"></i></div>
@@ -186,7 +187,7 @@
                     <div>
                         <div class="stat-info">
                             <h3>Total Buku Dibaca</h3>
-                            <h2 style="color:#28a745;"><?= esc($total_dibaca ?? 0) ?> Buku</h2>
+                            <h2 style="color:#28a745;"><span id="statDibaca"><?= esc($total_dibaca ?? 0) ?></span> Buku</h2>
                         </div>
                     </div>
                     <div class="stat-icon" style="background:#e6ffef; color:#28a745;"><i class="fa-solid fa-check-double"></i></div>
@@ -199,7 +200,7 @@
                         <h3>Status Peminjaman Anda</h3>
                         <a href="javascript:void(0)" style="font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 500;">Lihat Semua</a>
                     </div>
-                    <table>
+                    <table id="riwayatTableMember">
                         <thead>
                             <tr>
                                 <th>Judul Buku</th>
@@ -261,22 +262,40 @@
                         <h3>Tambahan Terbaru</h3>
                         <a href="<?= base_url('katalog') ?>" style="font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 500;">Katalog</a>
                     </div>
-                    <div class="book-item">
-                        <div class="book-cover"><i class="fa-solid fa-book"></i></div>
-                        <div class="book-info">
-                            <h4>Clean Code</h4>
-                            <p>Robert C. Martin • Tersedia</p>
-                            <div class="book-action"><a href="javascript:void(0)">Pinjam</a></div>
-                        </div>
-                    </div>
-                    <div class="book-item">
-                        <div class="book-cover" style="background:#fff4e6; color:#fd7e14;"><i class="fa-solid fa-book"></i></div>
-                        <div class="book-info">
-                            <h4>The Pragmatic Programmer</h4>
-                            <p>David Thomas • Dipinjam</p>
-                            <div class="book-action"><span style="font-size:11px; color:#f5a623;">Ingatkan Saya</span></div>
-                        </div>
-                    </div>
+                    
+                    <?php if(!empty($buku_terbaru)): ?>
+                        <?php foreach($buku_terbaru as $b): ?>
+                            <div class="book-item">
+                                <div class="book-cover" style="padding:0; background:transparent;">
+                                    <?php if(!empty($b['cover']) && $b['cover'] != 'default.png'): ?>
+                                        <img src="<?= base_url('uploads/covers/' . esc($b['cover'])) ?>" alt="Cover" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <?php else: ?>
+                                        <i class="fa-solid fa-book" style="font-size:20px; color:var(--primary);"></i>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <div class="book-info">
+                                    <h4><?= esc($b['judul_buku']) ?></h4>
+                                    <p>
+                                        <?= esc($b['penulis'] ?? 'Penulis Tidak Diketahui') ?> • 
+                                        <span style="font-weight: 500; color: <?= $b['stok'] > 0 ? '#28a745' : '#d32f2f'; ?>">
+                                            <?= $b['stok'] > 0 ? 'Tersedia' : 'Dipinjam'; ?>
+                                        </span>
+                                    </p>
+                                    
+                                    <div class="book-action">
+                                        <?php if($b['stok'] > 0): ?>
+                                            <a href="<?= base_url('katalog?keyword=' . urlencode($b['judul_buku'])) ?>">Pinjam</a>
+                                        </php> 
+                                            <span style="font-size:11px; color:#f5a623; font-weight:500;">Ingatkan Saya</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 20px 0;">Belum ada buku di database.</p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -303,6 +322,42 @@
         function tutupModalBatal() {
             document.getElementById('modalBatal').style.display = 'none';
         }
+
+        // --- REAL-TIME LIVE MONITORING DARI SISI USER MEMBER (AJAX POLLING) ---
+        function pantauAktivitasMemberSecaraLive() {
+            fetch('<?= base_url("member") ?>')
+                .then(response => response.text())
+                .then(htmlOutput => {
+                    // Membuat DOM bayangan untuk membaca respon HTML
+                    const parser = new DOMParser();
+                    const docBayangan = parser.parseFromString(htmlOutput, 'text/html');
+                    
+                    // 1. Cek perubahan isi tabel riwayat secara real-time
+                    const tabelTerbaru = docBayangan.getElementById('riwayatTableMember').querySelector('tbody');
+                    const tabelSekarang = document.getElementById('riwayatTableMember').querySelector('tbody');
+                    
+                    if (tabelTerbaru && tabelSekarang) {
+                        if (tabelSekarang.innerHTML.trim() !== tabelTerbaru.innerHTML.trim()) {
+                            tabelSekarang.innerHTML = tabelTerbaru.innerHTML;
+                        }
+                    }
+
+                    // 2. Cek dan sinkronisasikan angka card statistik di atas secara live
+                    const komponenStatistik = ['statMenunggu', 'statDipinjam', 'statDibaca'];
+                    komponenStatistik.forEach(id => {
+                        const targetBaru = docBayangan.getElementById(id);
+                        const targetSekarang = document.getElementById(id);
+                        if (targetBaru && targetSekarang && targetSekarang.innerText !== targetBaru.innerText) {
+                            targetSekarang.innerText = targetBaru.innerText;
+                        }
+                    });
+                })
+                .catch(err => console.warn("Koneksi latar belakang terputus: ", err));
+        }
+
+        // Jalankan fungsi pengecekan otomatis tanpa merusak fokus user setiap 4 detik sekali
+        setInterval(pantauAktivitasMemberSecaraLive, 4000);
     </script>
+    
 </body>
 </html>

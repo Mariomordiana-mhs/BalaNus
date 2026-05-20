@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - BalaNus</title>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -83,8 +80,6 @@
         .user-td { display: flex; align-items: center; gap: 10px; }
         .user-avatar { width: 30px; height: 30px; background: #e0e7ff; color: var(--primary); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; }
         .status-badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; }
-        .bg-blue { background: #e0e7ff; color: var(--primary); }
-        .bg-red { background: #ffeaea; color: #d9534f; }
 
         /* LISTS */
         .book-list-item { display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
@@ -94,11 +89,30 @@
         .late-text { font-size: 11px; color: #d9534f; font-weight: 500; }
         .borrower-info { text-align: right; margin-left: auto; font-size: 12px; color: var(--text-muted); }
 
+        /* MODAL POP-UP CUSTOM FOR ADMIN */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;
+            backdrop-filter: blur(2px);
+        }
+        .modal-box {
+            background: white; padding: 30px; border-radius: 12px; text-align: center;
+            max-width: 420px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: modalFadeIn 0.3s ease; user-select: none;
+        }
+        @keyframes modalFadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-icon { font-size: 50px; margin-bottom: 15px; }
+        .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; color: var(--text-dark); }
+        .modal-text { font-size: 13px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
+        .modal-actions { display: flex; justify-content: center; gap: 15px; }
+        .btn-modal { padding: 10px 22px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; text-decoration: none; font-size: 13px; transition: 0.2s; }
+        .btn-modal-cancel { background: #f5f7fb; color: #333; border: 1px solid var(--border); }
+        .btn-modal-cancel:hover { background: #eaedf2; }
+        .btn-modal-confirm { color: white; }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="logo-area">
             <i class="fa-solid fa-book-open-reader"></i>
@@ -110,7 +124,7 @@
             <a href="javascript:void(0)" class="menu-item active"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
             
             <div class="menu-title">KOLEKSI</div>
-            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-book"></i> Buku</a>
+            <a href="<?= base_url('admin/buku') ?>" class="menu-item"><i class="fa-solid fa-book"></i> Buku</a>
             <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-cubes"></i> Eksemplar</a>
             
             <div class="menu-title">ANGGOTA</div>
@@ -134,9 +148,7 @@
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="main-content">
-        <!-- TOPBAR -->
         <header class="topbar">
             <div class="header-title">
                 <h1>Dashboard</h1>
@@ -149,15 +161,13 @@
                 </div>
                 <div class="notifications">
                     <i class="fa-regular fa-bell"></i>
-                    <span class="badge">3</span>
+                    <span class="badge" id="notifBadge"><?= count($peminjaman_baru) ?></span>
                 </div>
             </div>
         </header>
 
-        <!-- DASHBOARD BODY -->
         <div class="dashboard-body">
             
-            <!-- 4 CARDS -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div>
@@ -201,12 +211,10 @@
                 </div>
             </div>
 
-            <!-- TABLE & LIST -->
             <div class="content-grid">
-                <!-- Tabel Peminjaman -->
                 <div class="card-panel">
                     <div class="panel-header">
-                        <h3>Peminjaman Terbaru</h3>
+                        <h3>Peminjaman Terbaru (Menunggu ACC)</h3>
                         <a href="javascript:void(0)">Lihat semua</a>
                     </div>
                     <table>
@@ -216,42 +224,63 @@
                                 <th>Anggota</th>
                                 <th>Buku</th>
                                 <th>Tgl Pinjam</th>
-                                <th>Tgl Kembali</th>
                                 <th>Status</th>
+                                <th style="text-align: center;">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>
-                                    <div class="user-td">
-                                        <div class="user-avatar">B</div>
-                                        <div>Mario Mordiana<br><span style="color:#888;font-size:11px;">A001</span></div>
-                                    </div>
-                                </td>
-                                <td>Atomic Habits<br><span style="color:#888;font-size:11px;">James Clear</span></td>
-                                <td>20 Mei 2026</td>
-                                <td>27 Mei 2026</td>
-                                <td><span class="status-badge bg-blue">Dipinjam</span></td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>
-                                    <div class="user-td">
-                                        <div class="user-avatar">D</div>
-                                        <div>Muhammad Yunus Alfian<br><span style="color:#888;font-size:11px;">A004</span></div>
-                                    </div>
-                                </td>
-                                <td>Negeri 5 Menara<br><span style="color:#888;font-size:11px;">Ahmad Fuadi</span></td>
-                                <td>17 Mei 2026</td>
-                                <td>24 Mei 2026</td>
-                                <td><span class="status-badge bg-red">Terlambat</span></td>
-                            </tr>
+                        <tbody id="peminjamanTableBody">
+                            <?php if (empty($peminjaman_baru)): ?>
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                                        <i class="fa-solid fa-circle-check" style="color: #28a745; margin-right: 5px; font-size: 16px;"></i> 
+                                        Belum ada pengajuan peminjaman baru.
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php $no = 1; foreach ($peminjaman_baru as $row): ?>
+                                    <tr>
+                                        <td><?= $no++; ?></td>
+                                        <td>
+                                            <div class="user-td">
+                                                <div class="user-avatar"><?= strtoupper(substr($row['username'], 0, 1)); ?></div>
+                                                <div>
+                                                    <span style="font-weight: 600; color: var(--text-dark);"><?= esc($row['username']); ?></span>
+                                                    <br>
+                                                    <span style="color:#888; font-size:11px;">ID: <?= esc($row['id_user']); ?></span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span style="font-weight: 500; color: var(--text-dark);"><?= esc($row['judul_buku']); ?></span>
+                                            <br>
+                                            <span style="color:#888; font-size:11px;">ID Buku: <?= esc($row['id_buku']); ?></span>
+                                        </td>
+                                        <td>
+                                            <i class="fa-regular fa-calendar-days" style="color: var(--text-muted); margin-right: 3px;"></i>
+                                            <?= date('d M Y', strtotime($row['tgl_pengajuan'])); ?>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge" style="background: #fff4e6; color: #fd7e14; font-weight: 600;">
+                                                <i class="fa-solid fa-spinner fa-spin" style="margin-right: 4px;"></i> <?= esc($row['status']); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; gap: 8px; justify-content: center;">
+                                                <button onclick="bukaModalAksi('acc', '<?= $row['id_peminjaman'] ?>', '<?= esc($row['username']) ?>')" style="background: #e6ffef; color: #28a745; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #c3e6cb; cursor:pointer;">
+                                                    <i class="fa-solid fa-check"></i> ACC
+                                                </button>
+                                                <button onclick="bukaModalAksi('tolak', '<?= $row['id_peminjaman'] ?>', '<?= esc($row['username']) ?>')" style="background: #ffeaea; color: #d9534f; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #f5c6cb; cursor:pointer;">
+                                                    <i class="fa-solid fa-xmark"></i> Tolak
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- List Buku Terlambat -->
                 <div class="card-panel">
                     <div class="panel-header">
                         <h3>Buku Terlambat</h3>
@@ -271,13 +300,11 @@
                 </div>
             </div>
 
-            <!-- CHARTS (SUDAH DIPERBAIKI UKURANNYA) -->
             <div class="content-grid">
                 <div class="card-panel" style="height: 350px; display: flex; flex-direction: column;">
                     <div class="panel-header" style="margin-bottom: 10px;">
                         <h3>Statistik Peminjaman <span style="font-size:12px;font-weight:400;color:var(--text-muted);">(6 Bulan Terakhir)</span></h3>
                     </div>
-                    <!-- Pembungkus ketat untuk Canvas agar tidak melar -->
                     <div style="position: relative; flex-grow: 1; min-height: 0;">
                         <canvas id="barChart"></canvas>
                     </div>
@@ -287,7 +314,6 @@
                     <div class="panel-header" style="margin-bottom: 10px;">
                         <h3>Ringkasan Denda</h3>
                     </div>
-                    <!-- Pembungkus ketat untuk Canvas agar tidak melar -->
                     <div style="position: relative; flex-grow: 1; min-height: 0;">
                         <canvas id="donutChart"></canvas>
                     </div>
@@ -297,9 +323,133 @@
         </div>
     </main>
 
-    <!-- Script Konfigurasi Grafik Chart.js -->
+    <div id="modalAdmin" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modalAdminIcon" class="modal-icon"></div>
+            <h3 id="modalAdminTitle" class="modal-title">Konfirmasi Tindakan</h3>
+            <p id="modalAdminText" class="modal-text">Apakah anda yakin ingin memproses data ini?</p>
+            <div class="modal-actions">
+                <button class="btn-modal btn-modal-cancel" onclick="tutupModalAksi()">Kembali</button>
+                <button id="btnModalConfirm" class="btn-modal btn-modal-confirm">Konfirmasi</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Data Grafik Batang
+        // DATA UNTUK REAL-TIME LIVE REFRESH DATA (TIDAK MERUSAK GRAPH)
+        const baseUrl = '<?= base_url() ?>';
+
+        function fetchLivePeminjaman() {
+            fetch(`${baseUrl}/admin/live_peminjaman`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('notifBadge').innerText = data.length;
+                    const tbody = document.getElementById('peminjamanTableBody');
+                    
+                    if (data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--text-muted);"><i class="fa-solid fa-circle-check" style="color: #28a745; margin-right: 5px; font-size: 16px;"></i> Belum ada pengajuan peminjaman baru.</td></tr>`;
+                        return;
+                    }
+
+                    let htmlOutput = '';
+                    let no = 1;
+                    data.forEach(row => {
+                        let username = row.username || 'User';
+                        let firstLetter = username.charAt(0).toUpperCase();
+                        
+                        // Menangani format tanggal standar javascript
+                        let tgl = new Date(row.tgl_pengajuan);
+                        let options = { day: '2-digit', month: 'short', year: 'numeric' };
+                        let tglFormatted = tgl.toLocaleDateString('id-ID', options);
+
+                        htmlOutput += `
+                            <tr>
+                                <td>${no++}</td>
+                                <td>
+                                    <div class="user-td">
+                                        <div class="user-avatar">${firstLetter}</div>
+                                        <div>
+                                            <span style="font-weight: 600; color: var(--text-dark);">${username}</span>
+                                            <br>
+                                            <span style="color:#888; font-size:11px;">ID: ${row.id_user}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span style="font-weight: 500; color: var(--text-dark);">${row.judul_buku}</span>
+                                    <br>
+                                    <span style="color:#888; font-size:11px;">ID Buku: ${row.id_buku}</span>
+                                </td>
+                                <td>
+                                    <i class="fa-regular fa-calendar-days" style="color: var(--text-muted); margin-right: 3px;"></i>
+                                    ${tglFormatted}
+                                </td>
+                                <td>
+                                    <span class="status-badge" style="background: #fff4e6; color: #fd7e14; font-weight: 600;">
+                                        <i class="fa-solid fa-spinner fa-spin" style="margin-right: 4px;"></i> ${row.status}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px; justify-content: center;">
+                                        <button onclick="bukaModalAksi('acc', '${row.id_peminjaman}', '${username}')" style="background: #e6ffef; color: #28a745; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #c3e6cb; cursor:pointer;">
+                                            <i class="fa-solid fa-check"></i> ACC
+                                        </button>
+                                        <button onclick="bukaModalAksi('tolak', '${row.id_peminjaman}', '${username}')" style="background: #ffeaea; color: #d9534f; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #f5c6cb; cursor:pointer;">
+                                            <i class="fa-solid fa-xmark"></i> Tolak
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>`;
+                    });
+                    tbody.innerHTML = htmlOutput;
+                });
+        }
+
+        // Jalankan pengambilan data otomatis setiap 4 detik (Real-time tanpa merusak grafik chart)
+        setInterval(fetchLivePeminjaman, 4000);
+
+        // KONTROL POP-UP DIALOG ELEGAN REPLACING BROWSER CONFIRM
+        let targetId = null;
+        let targetAksi = '';
+
+        function bukaModalAksi(tipe, id, namaUser) {
+            targetId = id;
+            targetAksi = tipe;
+            const modal = document.getElementById('modalAdmin');
+            const icon = document.getElementById('modalAdminIcon');
+            const title = document.getElementById('modalAdminTitle');
+            const text = document.getElementById('modalAdminText');
+            const btnConfirm = document.getElementById('btnModalConfirm');
+
+            if (tipe === 'acc') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                icon.style.color = '#28a745';
+                title.innerText = 'Setujui Peminjaman?';
+                text.innerText = `Apakah Anda yakin ingin menyetujui pengajuan peminjaman buku dari "${namaUser}"?`;
+                btnConfirm.style.background = '#28a745';
+                btnConfirm.innerText = 'Ya, Setujui';
+            } else {
+                icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+                icon.style.color = '#d9534f';
+                title.innerText = 'Tolak Peminjaman?';
+                text.innerText = `Apakah Anda yakin ingin menolak berkas pengajuan dari "${namaUser}"? Stok fisik buku akan langsung dikembalikan.`;
+                btnConfirm.style.background = '#d9534f';
+                btnConfirm.innerText = 'Ya, Tolak';
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function tutupModalAksi() {
+            document.getElementById('modalAdmin').style.display = 'none';
+        }
+
+        document.getElementById('btnModalConfirm').addEventListener('click', function() {
+            if(!targetId) return;
+            window.location.href = `${baseUrl}/admin/peminjaman/${targetAksi}/${targetId}`;
+        });
+
+        // CHARTS CONFIGURATION
         const ctxBar = document.getElementById('barChart').getContext('2d');
         new Chart(ctxBar, {
             type: 'bar',
@@ -313,7 +463,6 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
         });
 
-        // Data Grafik Donut
         const ctxDonut = document.getElementById('donutChart').getContext('2d');
         new Chart(ctxDonut, {
             type: 'doughnut',
