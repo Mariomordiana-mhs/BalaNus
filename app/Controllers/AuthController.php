@@ -73,7 +73,7 @@ class AuthController extends BaseController
     public function saveRegister()
     {
         $userModel = new UserModel();
-
+  
         // Aturan validasi (Pastikan tidak ada username atau email yang kembar)
         $rules = [
             'username' => 'required|min_length[3]|is_unique[users.username]',

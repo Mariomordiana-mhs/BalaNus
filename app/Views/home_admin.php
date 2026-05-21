@@ -246,14 +246,14 @@
                                                 <div>
                                                     <span style="font-weight: 600; color: var(--text-dark);"><?= esc($row['username']); ?></span>
                                                     <br>
-                                                    <span style="color:#888; font-size:11px;">ID: <?= esc($row['id_user']); ?></span>
+                                                   
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
                                             <span style="font-weight: 500; color: var(--text-dark);"><?= esc($row['judul_buku']); ?></span>
                                             <br>
-                                            <span style="color:#888; font-size:11px;">ID Buku: <?= esc($row['id_buku']); ?></span>
+                                           
                                         </td>
                                         <td>
                                             <i class="fa-regular fa-calendar-days" style="color: var(--text-muted); margin-right: 3px;"></i>

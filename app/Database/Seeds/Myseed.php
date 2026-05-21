@@ -20,6 +20,7 @@ class Myseed extends Seeder
         $this->call('UserSeeder');
         $this->call('BukuSeeder');
         $this->call('PeminjamanSeeder');
+        $this->call('LaporanSeeder');
 
         // Hidupkan kembali pengecekan relasi
         $this->db->enableForeignKeyChecks();
