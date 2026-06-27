@@ -9,7 +9,7 @@ class Home extends BaseController
     public function index()
     {
         return view('welcome_message');
-    }
+    }                   
 
     // --- FUNGSI UNTUK HALAMAN ADMIN ---
     public function admin()
@@ -281,4 +281,39 @@ class Home extends BaseController
 
         return redirect()->to('/admin')->with('error', 'Pengajuan peminjaman telah ditolak.');
     }
+
+// --- FUNGSI UNTUK HALAMAN DETAIL BUKU ---
+    public function detail_buku($id_buku)
+    {
+        $session = session();
+        
+        // Proteksi Halaman
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+
+        $modelBuku = new \App\Models\ModelBuku();
+        $buku = $modelBuku->find($id_buku);
+
+        // Jika buku tidak ditemukan di database
+        if (!$buku) {
+            return redirect()->to('/katalog')->with('error', 'Buku tidak ditemukan.');
+        }
+
+        // Siapkan data untuk dikirim ke halaman detail
+        $data = [
+            'title'        => 'Detail Buku - ' . $buku['judul_buku'] . ' - BalaNus',
+            'username'     => $session->get('username'),
+            'buku'         => $buku,
+            'active_menu'  => 'katalog' // Menandakan bahwa halaman katalog yang aktif di sidebar
+        ];
+
+        return view('detail_buku', $data);
+    }
+
+    public function api_docs()
+    {
+        return view('admin/api_docs', ['title' => 'Dokumentasi API Server']);
+    }
+
 }

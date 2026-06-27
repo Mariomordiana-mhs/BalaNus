@@ -47,13 +47,18 @@
         .buku-kategori { font-size: 11px; color: var(--primary); font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
         .buku-judul { font-size: 15px; font-weight: 600; color: var(--text-dark); margin-bottom: 5px; line-height: 1.4; }
         .buku-penulis { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
-        .buku-stok { font-size: 12px; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 15px; font-weight: 500; }
+        .buku-stok { font-size: 12px; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 10px; font-weight: 500; }
         .stok-ada { background: #e6ffef; color: #28a745; }
         .stok-habis { background: #ffebee; color: #d32f2f; }
+        
+        /* TOMBOL AKSI BUKU */
         .btn-pinjam { text-align: center; display: block; width: 100%; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 500; text-decoration: none; margin-top: auto; }
         .btn-pinjam-active { background: #f0f4ff; color: var(--primary); border: 1px solid #dce4ff; transition: 0.3s; }
         .btn-pinjam-active:hover { background: var(--primary); color: white; }
         .btn-pinjam-disabled { background: #f5f5f5; color: #aaa; cursor: not-allowed; }
+        
+        .btn-detail { text-align: center; display: block; width: 100%; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); background: white; color: var(--text-dark); cursor: pointer; transition: 0.3s; margin-bottom: 8px; margin-top: auto; }
+        .btn-detail:hover { background: var(--bg-color); border-color: #ccc; }
 
         /* MODAL POP-UP CUSTOM */
         .modal-overlay {
@@ -65,17 +70,12 @@
             background: white; padding: 30px; border-radius: 12px; text-align: center;
             max-width: 400px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             animation: modalFadeIn 0.3s ease;
-
-            -webkit-user-select: none; 
-            -moz-user-select: none; 
-            -ms-user-select: none; 
-            user-select: none;
         }
+        .modal-box-large { max-width: 500px; text-align: left; }
         @keyframes modalFadeIn { 
             from { opacity: 0; transform: translateY(-20px); } 
             to { opacity: 1; transform: translateY(0); } 
         }
-        /* Icon menggunakan warna primary (biru) */
         .modal-icon { font-size: 50px; color: var(--primary); margin-bottom: 15px; }
         .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; color: var(--text-dark); }
         .modal-text { font-size: 13px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
@@ -83,9 +83,13 @@
         .btn-modal { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; text-decoration: none; font-size: 13px; transition: 0.2s; }
         .btn-modal-cancel { background: #f5f7fb; color: #333; border: 1px solid var(--border); }
         .btn-modal-cancel:hover { background: #eaedf2; }
-        /* Tombol konfirmasi menggunakan warna primary (biru) */
         .btn-modal-confirm { background: var(--primary); color: white; }
         .btn-modal-confirm:hover { background: var(--primary-dark); }
+
+        /* Style untuk teks deskripsi dalam modal */
+        .desc-content { font-size: 13px; color: var(--text-muted); line-height: 1.6; max-height: 250px; overflow-y: auto; white-space: pre-wrap; text-align: justify; padding-right: 5px;}
+        .desc-content::-webkit-scrollbar { width: 5px; }
+        .desc-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -166,15 +170,27 @@
                                 <p class="buku-penulis"><?= esc($b['penulis'] ?? 'Penulis Tidak Diketahui') ?></p>
                                 <p style="font-size: 11px; color: #aaa; margin-top: -5px; margin-bottom: 10px;">ISBN: <?= esc($b['isbn'] ?? '-') ?></p>
                                 
-                                <div>
-                                    <?php if($b['stok'] > 0): ?>
-                                        <span class="buku-stok stok-ada">Tersedia: <?= esc($b['stok']) ?> Buku</span>
-                                        <a href="#" class="btn-pinjam btn-pinjam-active" onclick="tampilkanModalPinjam('<?= base_url('peminjaman/ajukan/' . $b['id_buku']) ?>'); return false;">Ajukan Peminjaman</a>
-                                    <?php else: ?>
-                                        <span class="buku-stok stok-habis">Stok Habis</span>
-                                        <a href="#" class="btn-pinjam btn-pinjam-disabled" onclick="return false;">Tidak Tersedia</a>
-                                    <?php endif; ?>
-                                </div>
+                                <?php if($b['stok'] > 0): ?>
+                                    <span class="buku-stok stok-ada">Tersedia: <?= esc($b['stok']) ?> Buku</span>
+                                <?php else: ?>
+                                    <span class="buku-stok stok-habis">Stok Habis</span>
+                                <?php endif; ?>
+
+                                <?php 
+                                    $descSafe = htmlspecialchars(esc($b['deskripsi'] ?? 'Deskripsi/Sinopsis belum tersedia untuk buku ini.'), ENT_QUOTES, 'UTF-8');
+                                    $judulSafe = htmlspecialchars(esc($b['judul_buku']), ENT_QUOTES, 'UTF-8');
+                                    $penulisSafe = htmlspecialchars(esc($b['penulis'] ?? '-'), ENT_QUOTES, 'UTF-8');
+                                    $coverUrl = !empty($b['cover']) && $b['cover'] != 'default.png' ? base_url('uploads/covers/' . esc($b['cover'])) : '';
+                                ?>
+                                
+                                <button class="btn-detail" onclick="tampilkanModalDetail('<?= $judulSafe ?>', '<?= $penulisSafe ?>', '<?= $coverUrl ?>', '<?= $descSafe ?>')">Lihat Deskripsi</button>
+
+                                <?php if($b['stok'] > 0): ?>
+                                    <a href="#" class="btn-pinjam btn-pinjam-active" onclick="tampilkanModalPinjam('<?= base_url('peminjaman/ajukan/' . $b['id_buku']) ?>'); return false;">Ajukan Peminjaman</a>
+                                <?php else: ?>
+                                    <a href="#" class="btn-pinjam btn-pinjam-disabled" onclick="return false;">Tidak Tersedia</a>
+                                <?php endif; ?>
+                                
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -196,17 +212,59 @@
         </div>
     </div>
 
+    <div id="modalDetail" class="modal-overlay">
+        <div class="modal-box modal-box-large">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                <h3 class="modal-title" style="margin: 0;" id="detailJudul">Judul Buku</h3>
+                <button onclick="tutupModalDetail()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #888; line-height: 1;">&times;</button>
+            </div>
+            
+            <div style="display: flex; gap: 20px;">
+                <div id="detailCoverContainer" style="width: 100px; height: 140px; background: #e0e7ff; display: flex; justify-content: center; align-items: center; border-radius: 8px; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    </div>
+                
+                <div style="flex: 1;">
+                    <p style="font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 10px;">Penulis: <span id="detailPenulis" style="color: var(--text-dark); font-weight: 500;"></span></p>
+                    <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 5px;">Sinopsis Buku:</h4>
+                    <div id="detailDeskripsi" class="desc-content">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // FUNGSI UNTUK MODAL PINJAM (EXISTING)
         function tampilkanModalPinjam(urlAjukan) {
-            // Tampilkan background gelap dan kotak modal
             document.getElementById('modalPinjam').style.display = 'flex';
-            // Sisipkan URL aksi ke tombol "Ya, Pinjam"
             document.getElementById('btnKonfirmasiPinjam').href = urlAjukan;
         }
 
         function tutupModalPinjam() {
-            // Sembunyikan kembali modal
             document.getElementById('modalPinjam').style.display = 'none';
+        }
+
+        // FUNGSI BARU UNTUK MODAL DESKRIPSI
+        function tampilkanModalDetail(judul, penulis, cover, deskripsi) {
+            // Isi teks
+            document.getElementById('detailJudul').innerText = judul;
+            document.getElementById('detailPenulis').innerText = penulis;
+            document.getElementById('detailDeskripsi').innerText = deskripsi;
+            
+            // Isi cover gambar
+            let coverContainer = document.getElementById('detailCoverContainer');
+            if (cover) {
+                coverContainer.innerHTML = `<img src="${cover}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            } else {
+                coverContainer.innerHTML = `<i class="fa-solid fa-book" style="font-size: 40px; color: var(--primary);"></i>`;
+            }
+            
+            // Tampilkan Modal
+            document.getElementById('modalDetail').style.display = 'flex';
+        }
+
+        function tutupModalDetail() {
+            document.getElementById('modalDetail').style.display = 'none';
         }
     </script>
 </body>

@@ -37,12 +37,36 @@ class Buku extends BaseController
     // 3. Memproses Data Tambah Buku (Create)
     public function store()
     {
-        // Validasi Input
+        // Validasi Input (Diperketat dengan Pesan Kustom)
         $rules = [
-            'isbn'       => 'required|is_unique[buku.isbn]',
-            'judul_buku' => 'required|min_length[3]',
-            'penulis'    => 'required',
-            'cover_buku' => 'max_size[cover_buku,2048]|is_image[cover_buku]|mime_in[cover_buku,image/jpg,image/jpeg,image/png]'
+            'isbn' => [
+                'rules'  => 'required|is_unique[buku.isbn]',
+                'errors' => [
+                    'required'  => 'ISBN wajib diisi.',
+                    'is_unique' => 'Gagal menyimpan! Buku dengan ISBN ini sudah ada di dalam database.'
+                ]
+            ],
+            'judul_buku' => [
+                'rules'  => 'required|min_length[3]',
+                'errors' => [
+                    'required'   => 'Judul buku wajib diisi.',
+                    'min_length' => 'Judul buku minimal 3 karakter.'
+                ]
+            ],
+            'penulis' => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'Penulis wajib diisi.'
+                ]
+            ],
+            'cover_buku' => [
+                'rules'  => 'max_size[cover_buku,2048]|is_image[cover_buku]|mime_in[cover_buku,image/jpg,image/jpeg,image/png]',
+                'errors' => [
+                    'max_size' => 'Ukuran gambar cover maksimal 2MB.',
+                    'is_image' => 'File yang dipilih bukan gambar.',
+                    'mime_in'  => 'Format gambar harus JPG, JPEG, atau PNG.'
+                ]
+            ]
         ];
 
         if (!$this->validate($rules)) {
@@ -109,10 +133,34 @@ class Buku extends BaseController
     {
         // Validasi Input (Pastikan is_unique mengecualikan ID buku yang sedang diedit)
         $rules = [
-            'isbn'       => "required|is_unique[buku.isbn,id_buku,{$id}]",
-            'judul_buku' => 'required|min_length[3]',
-            'penulis'    => 'required',
-            'cover_buku' => 'max_size[cover_buku,2048]|is_image[cover_buku]|mime_in[cover_buku,image/jpg,image/jpeg,image/png]'
+            'isbn' => [
+                'rules'  => "required|is_unique[buku.isbn,id_buku,{$id}]",
+                'errors' => [
+                    'required'  => 'ISBN wajib diisi.',
+                    'is_unique' => 'Gagal! ISBN ini sudah dipakai oleh buku lain.'
+                ]
+            ],
+            'judul_buku' => [
+                'rules'  => 'required|min_length[3]',
+                'errors' => [
+                    'required'   => 'Judul buku wajib diisi.',
+                    'min_length' => 'Judul buku minimal 3 karakter.'
+                ]
+            ],
+            'penulis' => [
+                'rules'  => 'required',
+                'errors' => [
+                    'required' => 'Penulis wajib diisi.'
+                ]
+            ],
+            'cover_buku' => [
+                'rules'  => 'max_size[cover_buku,2048]|is_image[cover_buku]|mime_in[cover_buku,image/jpg,image/jpeg,image/png]',
+                'errors' => [
+                    'max_size' => 'Ukuran gambar cover maksimal 2MB.',
+                    'is_image' => 'File yang dipilih bukan gambar.',
+                    'mime_in'  => 'Format gambar harus JPG, JPEG, atau PNG.'
+                ]
+            ]
         ];
 
         if (!$this->validate($rules)) {
@@ -200,5 +248,82 @@ class Buku extends BaseController
         }
 
         return redirect()->to('/admin')->with('error', 'Pengajuan peminjaman telah ditolak.');
+    }
+
+    // ====================================================================
+    // FUNGSI WEBSERVICE CLIENT (KONSUMSI OPEN LIBRARY API)
+    // ====================================================================
+    public function cariBukuViaApi($isbn)
+    {
+        // 0. CEK DATABASE LOKAL: Cegah duplikasi sebelum mencari ke API
+        $db = \Config\Database::connect();
+        $cekBukuLokal = $db->table('buku')->where('isbn', $isbn)->get()->getRowArray();
+        
+        if ($cekBukuLokal) {
+            // Jika ISBN sudah ada di database, langsung tolak dan beri pesan error
+            return $this->response->setJSON([
+                'status' => 'error',
+                'pesan'  => 'Buku dengan ISBN ini sudah terdaftar di perpustakaan Anda! Tidak perlu ditambahkan lagi.'
+            ]);
+        }
+
+        // 1. CEK CACHE: Inisialisasi layanan Cache CodeIgniter
+        $cache = \Config\Services::cache();
+        $cacheKey = 'openlibrary_isbn_' . $isbn;
+
+        // Jika data sudah ada di cache, langsung gunakan untuk performa cepat
+        if ($dataBuku = $cache->get($cacheKey)) {
+            return $this->response->setJSON([
+                'status' => 'success',
+                'sumber' => 'cache',
+                'data'   => $dataBuku
+            ]);
+        }
+
+        // 2. FETCH API & ERROR HANDLING: Ambil dari API jika tidak ada di cache
+        try {
+            $client = \Config\Services::curlrequest();
+            // Panggil Open Library API
+            $url = "https://openlibrary.org/api/books?bibkeys=ISBN:{$isbn}&format=json&jscmd=data"; 
+            
+            $response = $client->request('GET', $url, ['http_errors' => false]);
+            $body = json_decode($response->getBody(), true);
+            $bookKey = 'ISBN:' . $isbn;
+
+            // Jika respons API kosong (buku tidak ditemukan)
+            if (empty($body) || !isset($body[$bookKey])) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'pesan'  => 'Data buku dengan ISBN tersebut tidak ditemukan di Open Library.'
+                ]);
+            }
+
+            $bookData = $body[$bookKey];
+
+            // 3. SUSUN DATA
+            $hasil = [
+                'judul'    => $bookData['title'] ?? '',
+                'penulis'  => isset($bookData['authors']) ? $bookData['authors'][0]['name'] : '',
+                'penerbit' => isset($bookData['publishers']) ? $bookData['publishers'][0]['name'] : '',
+                'tahun'    => $bookData['publish_date'] ?? '',
+                'cover'    => $bookData['cover']['large'] ?? ($bookData['cover']['medium'] ?? '')
+            ];
+
+            // 4. SIMPAN KE CACHE: Simpan data selama 1 hari (86400 detik) untuk efisiensi server
+            $cache->save($cacheKey, $hasil, 86400);
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'sumber' => 'api_live',
+                'data'   => $hasil
+            ]);
+
+        } catch (\Exception $e) {
+            // ERROR HANDLING: Tangkap jika koneksi API terputus
+            return $this->response->setJSON([
+                'status' => 'error',
+                'pesan'  => 'Gagal terhubung ke API. Pastikan koneksi internet stabil.'
+            ]);
+        }
     }
 }

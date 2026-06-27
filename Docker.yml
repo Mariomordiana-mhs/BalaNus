@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  balanus-app:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - CI_ENVIRONMENT=development
+      - database.default.hostname=localhost
+      - database.default.database=balanus
+      - database.default.username=root
+      - database.default.password=
+    depends_on:
+      - balanus-db
+      
+  balanus-db:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_DATABASE=balanus
+      - MYSQL_ROOT_PASSWORD=
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
