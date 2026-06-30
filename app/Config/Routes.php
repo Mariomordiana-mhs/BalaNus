@@ -92,3 +92,5 @@ $routes->group('api', ['filter' => 'api_auth'], function($routes) {
     $routes->get('books/(:any)', 'Api\Books::show/$1');
     $routes->get('availability/(:num)', 'Api\Books::availability/$1');
 });
+
+$routes->get('reminder-proses', 'ReminderController::proses');

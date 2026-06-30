@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
                 'username'   => 'admin',
                 'email'      => 'admin@gmail.com',
                 'no_telp'    => '081111111111',
-                'password'   => '$2y$10$IeYJhrx3vXnKULqJLj98ROG1Z.VTFX5GpFdG8WkwsrYg7y3Rda6Za', //
+                'password'   => '$2y$10$IeYJhrx3vXnKULqJLj98ROG1Z.VTFX5GpFdG8WkwsrYg7y3Rda6Za', //123
                 'role'       => 'admin',
                 'created_at' => null,
                 'updated_at' => null

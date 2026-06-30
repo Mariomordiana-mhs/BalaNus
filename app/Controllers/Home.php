@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ModelPeminjaman; 
+use App\Libraries\WahaWhatsapp; //Panggil library WAHA
 
 class Home extends BaseController
 {
@@ -245,25 +246,62 @@ class Home extends BaseController
     // TAMBAHAN BARU: FUNGSI UNTUK ADMIN MENYETUJUI ATAU MENOLAK PINJAMAN
     // ====================================================================
 
+
     // Fungsi Meng-ACC Pengajuan
     public function acc_peminjaman($id_peminjaman)
     {
         $modelPeminjaman = new \App\Models\ModelPeminjaman();
+        $db = \Config\Database::connect(); 
         
-        // Update status menjadi 'Dipinjam' dan set tenggat waktu pengembalian (+7 hari)
+        $builder = $db->table('peminjaman');
+        $builder->select('peminjaman.*, buku.judul_buku, users.username, users.no_telp'); 
+        $builder->join('buku', 'buku.id_buku = peminjaman.id_buku');
+        $builder->join('users', 'users.id_user = peminjaman.id_user');
+        $builder->where('peminjaman.id_peminjaman', $id_peminjaman); 
+        $dataPinjam = $builder->get()->getRowArray();
+
+        $tenggat = date('Y-m-d', strtotime('+7 days'));
+
         $modelPeminjaman->update($id_peminjaman, [
             'status'        => 'Dipinjam',
-            'tenggat_waktu' => date('Y-m-d', strtotime('+7 days'))
+            'tenggat_waktu' => $tenggat
         ]);
 
-        return redirect()->to('/admin')->with('success', 'Peminjaman berhasil disetujui (ACC)!');
-    }
+        // PROSES KIRIM WHATSAPP (ACC) & PENCATATAN AUDIT TRAIL
+        if ($dataPinjam && !empty($dataPinjam['no_telp'])) {
+            $wa = new \App\Libraries\WahaWhatsapp();
+            
+            $nomorWA   = $dataPinjam['no_telp'];
+            $namaUser  = $dataPinjam['username'];
+            $judulBuku = $dataPinjam['judul_buku'];
 
+            $pesan = "Halo *$namaUser*,\n\n";
+            $pesan .= "Pengajuan peminjaman buku kamu telah *DISETUJUI* oleh Admin Perpustakaan BalaNus. ✅\n\n";
+            $pesan .= "📖 *Detail Peminjaman:*\n";
+            $pesan .= "• Judul Buku: $judulBuku\n";
+            $pesan .= "• Batas Waktu: " . date('d M Y', strtotime($tenggat)) . "\n\n";
+            $pesan .= "Silakan ambil buku fisik kamu di meja petugas perpustakaan ya. Terima kasih!";
+
+            // Kirim pesan sekaligus catat ke tabel notifications
+            $wa->sendText($nomorWA, $pesan, 'Peminjaman Disetujui');
+        }
+
+        return redirect()->to('/admin')->with('success', 'Peminjaman berhasil disetujui & Notifikasi WA Terkirim!');
+    }
+        
     // Fungsi Menolak Pengajuan
     public function tolak_peminjaman($id_peminjaman)
     {
         $modelPeminjaman = new \App\Models\ModelPeminjaman();
         $modelBuku = new \App\Models\ModelBuku();
+        $db = \Config\Database::connect(); 
+
+        $builder = $db->table('peminjaman');
+        $builder->select('peminjaman.*, buku.judul_buku, users.username, users.no_telp');
+        $builder->join('buku', 'buku.id_buku = peminjaman.id_buku');
+        $builder->join('users', 'users.id_user = peminjaman.id_user');
+        $builder->where('peminjaman.id_peminjaman', $id_peminjaman);
+        $dataPinjam = $builder->get()->getRowArray();
 
         $peminjaman = $modelPeminjaman->find($id_peminjaman);
         if ($peminjaman) {
@@ -271,18 +309,39 @@ class Home extends BaseController
             $buku = $modelBuku->find($id_buku);
             
             if ($buku) {
-                // Kembalikan stok fisik buku (+1) karena pengajuan tidak jadi diproses (ditolak)
                 $modelBuku->update($id_buku, ['stok' => $buku['stok'] + 1]);
             }
-            
-            // Hapus pengajuan dari list peminjaman
             $modelPeminjaman->delete($id_peminjaman);
         }
 
-        return redirect()->to('/admin')->with('error', 'Pengajuan peminjaman telah ditolak.');
+        // PROSES KIRIM WHATSAPP (TOLAK)
+        if ($dataPinjam && !empty($dataPinjam['no_telp'])) {
+            $wa = new WahaWhatsapp();
+            
+            // --- LOGIKA UBAH 0 MENJADI 62 ---
+            $nomorWA = $dataPinjam['no_telp'];
+            if (substr($nomorWA, 0, 1) === '0') {
+                $nomorWA = '62' . substr($nomorWA, 1);
+            }
+            if (substr($nomorWA, 0, 1) === '+') {
+                $nomorWA = substr($nomorWA, 1);
+            }
+            // ---------------------------------
+
+            $namaUser  = $dataPinjam['username'];
+            $judulBuku = $dataPinjam['judul_buku'];
+
+            $pesan = "Halo *$namaUser*,\n\n";
+            $pesan .= "Mohon maaf, pengajuan peminjaman buku untuk judul *$judulBuku* telah *DITOLAK* oleh Admin. ❌\n\n";
+            $pesan .= "Hal ini bisa terjadi karena ketersediaan stok buku sedang kosong atau ada hal lainnya. Silakan hubungi petugas perpustakaan untuk info lebih lanjut.";
+
+            $wa->sendText($nomorWA, $pesan);
+        }
+
+        return redirect()->to('/admin')->with('error', 'Pengajuan peminjaman ditolak & Notifikasi WA Terkirim.');
     }
 
-// --- FUNGSI UNTUK HALAMAN DETAIL BUKU ---
+    // --- FUNGSI UNTUK HALAMAN DETAIL BUKU ---
     public function detail_buku($id_buku)
     {
         $session = session();
