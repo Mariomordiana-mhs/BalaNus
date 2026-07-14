@@ -7,13 +7,13 @@ BalaNus adalah aplikasi Sistem Informasi Perpustakaan berbasis web yang dibangun
 ## 📸 Screenshot Fitur Utama
 
 1. **Dashboard Member & Statistik Denda**
-   ![Dashboard Member](imagereadme\Dashboard_Member.png)
+   ![Dashboard Member](imagereadme/Dashboard_Member.png)
 
 2. **Katalog buku & Ketersediaan**
-   ![Katalog Buku](imagereadme\Katalog_Buku.png)
+   ![Katalog Buku](imagereadme/Katalog_Buku.png)
 
 3. **Pembayaran Denda Online (Midtrans)**
-   ![Pembayaran Midtrans](imagereadme\Denda_Member.png)
+   ![Pembayaran Midtrans](imagereadme/Denda_Member.png)
 
 ---
 
