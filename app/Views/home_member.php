@@ -116,8 +116,9 @@
             <div class="menu-title">PERPUSTAKAAN</div>
             <a href="<?= base_url('katalog') ?>" class="menu-item"><i class="fa-solid fa-magnifying-glass"></i> Katalog Buku</a>
             <div class="menu-title">AKTIVITAS SAYA</div>
-            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-book-bookmark"></i> Peminjaman & Antrean</a>
-            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Baca</a>
+            <a href="<?= base_url('peminjaman') ?>" class="menu-item"><i class="fa-solid fa-book-bookmark"></i> Peminjaman & Antrean</a>
+            <a href="<?= base_url('riwayat') ?>" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Baca</a>
+            <a href="<?= base_url('denda') ?>" class="menu-item"><i class="fa-solid fa-wallet"></i> Denda & Tanggungan</a>
         </div>
 
         <div class="user-profile-sidebar" onclick="window.location.href='<?= base_url('logout') ?>'">
@@ -286,7 +287,7 @@
                                     <div class="book-action">
                                         <?php if($b['stok'] > 0): ?>
                                             <a href="<?= base_url('katalog?keyword=' . urlencode($b['judul_buku'])) ?>">Pinjam</a>
-                                        </php> 
+                                        <?php else: ?>
                                             <span style="font-size:11px; color:#f5a623; font-weight:500;">Ingatkan Saya</span>
                                         <?php endif; ?>
                                     </div>
@@ -328,11 +329,9 @@
             fetch('<?= base_url("member") ?>')
                 .then(response => response.text())
                 .then(htmlOutput => {
-                    // Membuat DOM bayangan untuk membaca respon HTML
                     const parser = new DOMParser();
                     const docBayangan = parser.parseFromString(htmlOutput, 'text/html');
                     
-                    // 1. Cek perubahan isi tabel riwayat secara real-time
                     const tabelTerbaru = docBayangan.getElementById('riwayatTableMember').querySelector('tbody');
                     const tabelSekarang = document.getElementById('riwayatTableMember').querySelector('tbody');
                     
@@ -342,7 +341,6 @@
                         }
                     }
 
-                    // 2. Cek dan sinkronisasikan angka card statistik di atas secara live
                     const komponenStatistik = ['statMenunggu', 'statDipinjam', 'statDibaca'];
                     komponenStatistik.forEach(id => {
                         const targetBaru = docBayangan.getElementById(id);
@@ -355,7 +353,6 @@
                 .catch(err => console.warn("Koneksi latar belakang terputus: ", err));
         }
 
-        // Jalankan fungsi pengecekan otomatis tanpa merusak fokus user setiap 4 detik sekali
         setInterval(pantauAktivitasMemberSecaraLive, 4000);
     </script>
     

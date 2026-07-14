@@ -100,19 +100,46 @@
 
     <div class="stats-grid">
         <div class="stat-card">
-            <div><div class="stat-info"><h3>Total Buku</h3><h2>1.248</h2></div><a href="<?= base_url('admin/buku') ?>" class="link">Lihat semua ></a></div>
+            <div>
+                <div class="stat-info">
+                    <h3>Total Buku</h3>
+                    <h2><?= number_format($total_buku, 0, ',', '.') ?></h2>
+                </div>
+                <a href="<?= base_url('admin/buku') ?>" class="link">Lihat semua ></a>
+            </div>
             <div class="stat-icon" style="background:#e0e7ff; color:#005ce6;"><i class="fa-solid fa-book"></i></div>
         </div>
+        
         <div class="stat-card">
-            <div><div class="stat-info"><h3>Total Eksemplar</h3><h2 style="color:#28a745;">2.562</h2></div><a href="<?= base_url('admin/eksemplar') ?>" class="link">Lihat semua ></a></div>
+            <div>
+                <div class="stat-info">
+                    <h3>Total Eksemplar</h3>
+                    <h2 style="color:#28a745;"><?= number_format($total_eksemplar, 0, ',', '.') ?></h2>
+                </div>
+                <a href="<?= base_url('admin/eksemplar') ?>" class="link">Lihat semua ></a>
+            </div>
             <div class="stat-icon" style="background:#e6ffef; color:#28a745;"><i class="fa-solid fa-cubes"></i></div>
         </div>
+        
         <div class="stat-card">
-            <div><div class="stat-info"><h3>Peminjaman Aktif</h3><h2 style="color:#fd7e14;">156</h2></div><a href="<?= base_url('admin/peminjaman') ?>" class="link">Lihat semua ></a></div>
+            <div>
+                <div class="stat-info">
+                    <h3>Peminjaman Aktif</h3>
+                    <h2 style="color:#fd7e14;"><?= number_format($peminjaman_aktif, 0, ',', '.') ?></h2>
+                </div>
+                <a href="<?= base_url('admin/peminjaman') ?>" class="link">Lihat semua ></a>
+            </div>
             <div class="stat-icon" style="background:#fff4e6; color:#fd7e14;"><i class="fa-solid fa-user-group"></i></div>
         </div>
+        
         <div class="stat-card">
-            <div><div class="stat-info"><h3>Denda Belum Dibayar</h3><h2 style="color:#d9534f; font-size:20px;">Rp 2.450.000</h2></div><a href="<?= base_url('admin/denda') ?>" class="link">Lihat semua ></a></div>
+            <div>
+                <div class="stat-info">
+                    <h3>Denda Belum Dibayar</h3>
+                    <h2 style="color:#d9534f; font-size:20px;">Rp <?= number_format($total_denda, 0, ',', '.') ?></h2>
+                </div>
+                <a href="<?= base_url('admin/denda') ?>" class="link">Lihat semua ></a>
+            </div>
             <div class="stat-icon" style="background:#ffeaea; color:#d9534f;"><i class="fa-solid fa-wallet"></i></div>
         </div>
     </div>

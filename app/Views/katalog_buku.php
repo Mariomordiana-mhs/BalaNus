@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= esc($title) ?></title>
+    <title><?= esc($title ?? 'Katalog Buku - BalaNus') ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
@@ -24,72 +24,55 @@
         .menu-item i { width: 25px; font-size: 16px; }
         .menu-item:hover, .menu-item.active { background-color: rgba(255,255,255,0.15); }
         .menu-item.active { background-color: var(--primary-dark); }
+        .user-profile-sidebar { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .user-profile-sidebar i { font-size: 24px; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 50%; }
+        .user-info p { font-size: 14px; font-weight: 600; margin-bottom: -3px;}
+        .user-info span { font-size: 12px; opacity: 0.7; }
         
-        /* MAIN CONTENT */
+        /* MAIN CONTENT & TOPBAR */
         .main-content { flex: 1; margin-left: var(--sidebar-width); padding: 0; display: flex; flex-direction: column; }
         .topbar { background: var(--white); height: 70px; padding: 0 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .header-title h1 { font-size: 20px; font-weight: 600; color: var(--text-dark); }
-        .dashboard-body { padding: 30px; }
+        .header-title p { font-size: 12px; color: var(--text-muted); }
+        .topbar-right { display: flex; align-items: center; gap: 20px; }
+        .notifications { position: relative; cursor: pointer; color: var(--text-muted); font-size: 18px; }
         
-        /* FORM SEARCH */
-        .search-container { background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; }
-        .search-box { display: flex; flex: 1; max-width: 600px; background: var(--bg-color); border-radius: 8px; padding: 5px 15px; align-items: center; border: 1px solid var(--border); }
-        .search-box input { border: none; background: transparent; outline: none; width: 100%; padding: 10px; font-size: 14px; }
-        .btn-search { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: 0.3s; }
+        /* KATALOG STYLES */
+        .catalog-container { padding: 30px; }
+        .page-title { font-size: 20px; font-weight: 600; margin-bottom: 24px; color: var(--text-dark); }
+        
+        /* SEARCH SECTION */
+        .search-section { background: var(--white); padding: 15px; border-radius: 12px; border: 1px solid var(--border); display: flex; gap: 15px; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .search-box { flex: 1; background: var(--bg-color); border-radius: 8px; display: flex; align-items: center; padding: 10px 15px; }
+        .search-box i { color: var(--text-muted); font-size: 16px; }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; margin-left: 10px; font-size: 14px; color: var(--text-dark); }
+        .btn-search { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; transition: 0.2s; }
         .btn-search:hover { background: var(--primary-dark); }
 
-        /* GRID KATALOG BUKU */
-        .katalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
-        .buku-card { background: var(--white); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; }
-        .buku-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .buku-cover { height: 180px; background: #e0e7ff; display: flex; justify-content: center; align-items: center; font-size: 50px; color: var(--primary); }
-        .buku-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
-        .buku-kategori { font-size: 11px; color: var(--primary); font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
-        .buku-judul { font-size: 15px; font-weight: 600; color: var(--text-dark); margin-bottom: 5px; line-height: 1.4; }
-        .buku-penulis { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
-        .buku-stok { font-size: 12px; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 10px; font-weight: 500; }
-        .stok-ada { background: #e6ffef; color: #28a745; }
-        .stok-habis { background: #ffebee; color: #d32f2f; }
+        /* GRID BUKU */
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 20px; }
+        .book-card { background: var(--white); border-radius: 12px; border: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
+        .book-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         
-        /* TOMBOL AKSI BUKU */
-        .btn-pinjam { text-align: center; display: block; width: 100%; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 500; text-decoration: none; margin-top: auto; }
-        .btn-pinjam-active { background: #f0f4ff; color: var(--primary); border: 1px solid #dce4ff; transition: 0.3s; }
-        .btn-pinjam-active:hover { background: var(--primary); color: white; }
-        .btn-pinjam-disabled { background: #f5f5f5; color: #aaa; cursor: not-allowed; }
+        .book-card-cover { height: 180px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
+        .book-card-cover img { max-height: 100%; max-width: 100%; object-fit: contain; box-shadow: 2px 4px 8px rgba(0,0,0,0.1); border-radius: 4px; }
         
-        .btn-detail { text-align: center; display: block; width: 100%; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); background: white; color: var(--text-dark); cursor: pointer; transition: 0.3s; margin-bottom: 8px; margin-top: auto; }
-        .btn-detail:hover { background: var(--bg-color); border-color: #ccc; }
-
-        /* MODAL POP-UP CUSTOM */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
-            backdrop-filter: blur(2px);
-        }
-        .modal-box {
-            background: white; padding: 30px; border-radius: 12px; text-align: center;
-            max-width: 400px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            animation: modalFadeIn 0.3s ease;
-        }
-        .modal-box-large { max-width: 500px; text-align: left; }
-        @keyframes modalFadeIn { 
-            from { opacity: 0; transform: translateY(-20px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        .modal-icon { font-size: 50px; color: var(--primary); margin-bottom: 15px; }
-        .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; color: var(--text-dark); }
-        .modal-text { font-size: 13px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
-        .modal-actions { display: flex; justify-content: center; gap: 15px; }
-        .btn-modal { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; text-decoration: none; font-size: 13px; transition: 0.2s; }
-        .btn-modal-cancel { background: #f5f7fb; color: #333; border: 1px solid var(--border); }
-        .btn-modal-cancel:hover { background: #eaedf2; }
-        .btn-modal-confirm { background: var(--primary); color: white; }
-        .btn-modal-confirm:hover { background: var(--primary-dark); }
-
-        /* Style untuk teks deskripsi dalam modal */
-        .desc-content { font-size: 13px; color: var(--text-muted); line-height: 1.6; max-height: 250px; overflow-y: auto; white-space: pre-wrap; text-align: justify; padding-right: 5px;}
-        .desc-content::-webkit-scrollbar { width: 5px; }
-        .desc-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 5px; }
+        .book-category { color: var(--primary); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
+        .book-title { font-size: 15px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; line-height: 1.3; }
+        .book-author { font-size: 13px; color: var(--text-muted); margin-bottom: 2px; }
+        .book-isbn { font-size: 11px; color: #a0aec0; margin-bottom: 15px; }
+        
+        .book-footer { margin-top: auto; }
+        .book-stock { background: #e6ffef; color: #28a745; padding: 6px 0; border-radius: 6px; font-size: 12px; font-weight: 600; text-align: center; margin-bottom: 12px; }
+        .book-stock-empty { background: #fee2e2; color: #dc2626; padding: 6px 0; border-radius: 6px; font-size: 12px; font-weight: 600; text-align: center; margin-bottom: 12px; }
+        
+        .book-actions { display: flex; flex-direction: column; gap: 8px; }
+        .btn-detail { background: white; border: 1px solid var(--border); color: var(--text-muted); padding: 8px; border-radius: 8px; text-align: center; text-decoration: none; font-size: 13px; font-weight: 500; transition: 0.2s; }
+        .btn-detail:hover { background: var(--bg-color); color: var(--text-dark); }
+        .btn-pinjam { background: #e0e7ff; color: var(--primary); border: none; padding: 8px; border-radius: 8px; text-align: center; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.2s; text-decoration: none; display: block; }
+        .btn-pinjam:hover { background: #c7d2fe; }
+        .btn-disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+        .btn-disabled:hover { background: #f1f5f9; }
     </style>
 </head>
 <body>
@@ -100,172 +83,119 @@
             <h2>BalaNus</h2>
             <p>Books are windows to the world</p>
         </div>
+        
         <div class="menu-wrapper">
             <a href="<?= base_url('member') ?>" class="menu-item"><i class="fa-solid fa-house"></i> Beranda</a>
+            
             <div class="menu-title">PERPUSTAKAAN</div>
             <a href="<?= base_url('katalog') ?>" class="menu-item active"><i class="fa-solid fa-magnifying-glass"></i> Katalog Buku</a>
+            
             <div class="menu-title">AKTIVITAS SAYA</div>
-            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-book-bookmark"></i> Peminjaman & Antrean</a>
-            <a href="javascript:void(0)" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Baca</a>
+            <a href="<?= base_url('peminjaman') ?>" class="menu-item"><i class="fa-solid fa-book-bookmark"></i> Peminjaman & Antrean</a>
+            <a href="<?= base_url('riwayat') ?>" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Baca</a>
+            <a href="<?= base_url('denda') ?>" class="menu-item"><i class="fa-solid fa-wallet"></i> Denda & Tanggungan</a>
+        </div>
+
+        <div class="user-profile-sidebar" onclick="window.location.href='<?= base_url('logout') ?>'">
+            <i class="fa-solid fa-user"></i>
+            <div class="user-info">
+                <p><?= esc($username ?? 'Member') ?></p>
+                <span>Anggota Aktif (Logout)</span>
+            </div>
         </div>
     </aside>
 
     <main class="main-content">
         <header class="topbar">
+            <?php 
+                date_default_timezone_set('Asia/Jakarta');
+                $jam = date('H');
+                if ($jam >= 5 && $jam < 11) { $salam = 'Pagi'; }
+                elseif ($jam >= 11 && $jam < 15) { $salam = 'Siang'; }
+                elseif ($jam >= 15 && $jam < 18) { $salam = 'Sore'; }
+                else { $salam = 'Malam'; }
+            ?>
             <div class="header-title">
-                <h1>Katalog Koleksi Buku</h1>
+                <h1>Selamat <?= $salam ?>, <?= esc($username ?? 'Member') ?>!</h1>
+                <p>Jelajahi ribuan koleksi buku yang ada di BalaNus.</p>
+            </div>
+            <div class="topbar-right">
+                <div class="notifications">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="badge" style="display: none;">0</span>
+                </div>
             </div>
         </header>
 
-        <div class="dashboard-body">
-            
-            <div class="search-container">
-                <form action="<?= base_url('katalog') ?>" method="GET" style="width: 100%; display: flex; gap: 15px;">
-                    <div class="search-box">
-                        <i class="fa-solid fa-search" style="color: var(--text-muted);"></i>
-                        <input type="text" name="keyword" value="<?= esc($keyword ?? '') ?>" placeholder="Cari berdasarkan Judul, Penulis, ISBN, atau Kategori...">
-                    </div>
-                    <button type="submit" class="btn-search">Cari Buku</button>
-                    <?php if(!empty($keyword)): ?>
-                        <a href="<?= base_url('katalog') ?>" style="display: flex; align-items: center; padding: 0 15px; color: #d9534f; text-decoration: none; font-size: 14px;"><i class="fa-solid fa-xmark" style="margin-right: 5px;"></i> Reset</a>
-                    <?php endif; ?>
-                </form>
-            </div>
+        <div class="catalog-container">
+            <h2 class="page-title">Katalog Koleksi Buku</h2>
+
+            <form action="<?= base_url('katalog') ?>" method="GET" class="search-section">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" name="keyword" placeholder="Cari berdasarkan Judul, Penulis, ISBN..." value="<?= esc($keyword ?? '') ?>">
+                </div>
+                <button type="submit" class="btn-search">Cari Buku</button>
+            </form>
 
             <?php if(session()->getFlashdata('error')): ?>
-                <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f5c6cb; display: flex; align-items: center; justify-content: space-between;">
-                    <span><i class="fa-solid fa-circle-exclamation" style="margin-right: 8px;"></i> <?= session()->getFlashdata('error'); ?></span>
-                    <button onclick="this.parentElement.style.display='none';" style="background: none; border: none; font-size: 16px; cursor: pointer; color: #721c24;">&times;</button>
+                <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+                    <?= session()->getFlashdata('error'); ?>
                 </div>
             <?php endif; ?>
 
-            <?php if(!empty($keyword)): ?>
-                <p style="margin-bottom: 20px; font-size: 14px; color: var(--text-muted);">
-                    Menampilkan hasil pencarian untuk: <strong>"<?= esc($keyword) ?>"</strong>
-                </p>
-            <?php endif; ?>
-
-            <div class="katalog-grid">
-                <?php if(empty($buku)): ?>
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 50px; background: var(--white); border-radius: 12px; border: 1px solid var(--border);">
-                        <i class="fa-solid fa-box-open" style="font-size: 40px; color: #ccc; margin-bottom: 15px;"></i>
-                        <h3 style="color: var(--text-muted);">Buku tidak ditemukan</h3>
-                        <p style="font-size: 13px; color: #aaa;">Coba gunakan kata kunci lain untuk mencari.</p>
-                    </div>
-                <?php else: ?>
+            <div class="catalog-grid">
+                
+                <?php if(isset($buku) && !empty($buku)): ?>
                     <?php foreach($buku as $b): ?>
-                        <div class="buku-card">
-                            <div class="buku-cover" style="padding: 0; background: transparent;">
+                        <div class="book-card">
+                            <div class="book-card-cover">
                                 <?php if(!empty($b['cover']) && $b['cover'] != 'default.png'): ?>
-                                    <img src="<?= base_url('uploads/covers/' . esc($b['cover'])) ?>" alt="Cover Buku" style="width: 50%; height: 100%; object-fit: cover;">
+                                    <img src="<?= base_url('uploads/covers/' . esc($b['cover'])) ?>" alt="<?= esc($b['judul_buku']) ?>">
                                 <?php else: ?>
-                                    <div style="width: 100%; height: 100%; background: #e0e7ff; display: flex; justify-content: center; align-items: center; font-size: 50px; color: var(--primary);">
-                                        <i class="fa-solid fa-book"></i>
-                                    </div>
+                                    <i class="fa-solid fa-book" style="font-size: 60px; color: #cbd5e1;"></i>
                                 <?php endif; ?>
                             </div>
-                            <div class="buku-body">
-                                <span class="buku-kategori"><?= esc($b['kategori'] ?? 'Umum') ?></span>
-                                <h3 class="buku-judul"><?= esc($b['judul_buku']) ?></h3>
-                                <p class="buku-penulis"><?= esc($b['penulis'] ?? 'Penulis Tidak Diketahui') ?></p>
-                                <p style="font-size: 11px; color: #aaa; margin-top: -5px; margin-bottom: 10px;">ISBN: <?= esc($b['isbn'] ?? '-') ?></p>
-                                
+
+                            <?php if(!empty($b['kategori'])): ?>
+                                <span class="book-category"><?= esc($b['kategori']) ?></span>
+                            <?php else: ?>
+                                <span class="book-category">Umum</span>
+                            <?php endif; ?>
+                            
+                            <h3 class="book-title"><?= esc($b['judul_buku']) ?></h3>
+                            <p class="book-author"><?= esc($b['penulis'] ?? 'Penulis Tidak Diketahui') ?></p>
+                            <p class="book-isbn">ISBN: <?= esc($b['isbn'] ?? '-') ?></p>
+
+                            <div class="book-footer">
                                 <?php if($b['stok'] > 0): ?>
-                                    <span class="buku-stok stok-ada">Tersedia: <?= esc($b['stok']) ?> Buku</span>
+                                    <div class="book-stock">Tersedia: <?= $b['stok'] ?> Buku</div>
                                 <?php else: ?>
-                                    <span class="buku-stok stok-habis">Stok Habis</span>
+                                    <div class="book-stock-empty">Stok Habis</div>
                                 <?php endif; ?>
 
-                                <?php 
-                                    $descSafe = htmlspecialchars(esc($b['deskripsi'] ?? 'Deskripsi/Sinopsis belum tersedia untuk buku ini.'), ENT_QUOTES, 'UTF-8');
-                                    $judulSafe = htmlspecialchars(esc($b['judul_buku']), ENT_QUOTES, 'UTF-8');
-                                    $penulisSafe = htmlspecialchars(esc($b['penulis'] ?? '-'), ENT_QUOTES, 'UTF-8');
-                                    $coverUrl = !empty($b['cover']) && $b['cover'] != 'default.png' ? base_url('uploads/covers/' . esc($b['cover'])) : '';
-                                ?>
-                                
-                                <button class="btn-detail" onclick="tampilkanModalDetail('<?= $judulSafe ?>', '<?= $penulisSafe ?>', '<?= $coverUrl ?>', '<?= $descSafe ?>')">Lihat Deskripsi</button>
-
-                                <?php if($b['stok'] > 0): ?>
-                                    <a href="#" class="btn-pinjam btn-pinjam-active" onclick="tampilkanModalPinjam('<?= base_url('peminjaman/ajukan/' . $b['id_buku']) ?>'); return false;">Ajukan Peminjaman</a>
-                                <?php else: ?>
-                                    <a href="#" class="btn-pinjam btn-pinjam-disabled" onclick="return false;">Tidak Tersedia</a>
-                                <?php endif; ?>
-                                
+                                <div class="book-actions">
+                                    <a href="<?= base_url('katalog/detail/' . $b['id_buku']) ?>" class="btn-detail">Lihat Deskripsi</a>
+                                    
+                                    <?php if($b['stok'] > 0): ?>
+                                        <a href="<?= base_url('peminjaman/ajukan/' . $b['id_buku']) ?>" class="btn-pinjam">Ajukan Peminjaman</a>
+                                    <?php else: ?>
+                                        <button disabled class="btn-pinjam btn-disabled">Tidak Dapat Dipinjam</button>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
+                <?php else: ?>
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 50px 0; color: var(--text-muted);">
+                        <i class="fa-solid fa-box-open" style="font-size: 40px; margin-bottom: 15px; color: #cbd5e1;"></i>
+                        <p>Buku yang Anda cari belum tersedia di perpustakaan.</p>
+                    </div>
                 <?php endif; ?>
-            </div>
 
+            </div>
         </div>
     </main>
-
-    <div id="modalPinjam" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-icon"><i class="fa-solid fa-book-bookmark"></i></div>
-            <h3 class="modal-title">Ajukan Peminjaman?</h3>
-            <p class="modal-text">Apakah Anda yakin ingin mengajukan peminjaman untuk buku ini? Pastikan Anda membacanya dan mengembalikannya tepat waktu ya!</p>
-            <div class="modal-actions">
-                <button class="btn-modal btn-modal-cancel" onclick="tutupModalPinjam()">Batal</button>
-                <a href="#" id="btnKonfirmasiPinjam" class="btn-modal btn-modal-confirm">Ya, Pinjam Buku</a>
-            </div>
-        </div>
-    </div>
-
-    <div id="modalDetail" class="modal-overlay">
-        <div class="modal-box modal-box-large">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                <h3 class="modal-title" style="margin: 0;" id="detailJudul">Judul Buku</h3>
-                <button onclick="tutupModalDetail()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #888; line-height: 1;">&times;</button>
-            </div>
-            
-            <div style="display: flex; gap: 20px;">
-                <div id="detailCoverContainer" style="width: 100px; height: 140px; background: #e0e7ff; display: flex; justify-content: center; align-items: center; border-radius: 8px; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    </div>
-                
-                <div style="flex: 1;">
-                    <p style="font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 10px;">Penulis: <span id="detailPenulis" style="color: var(--text-dark); font-weight: 500;"></span></p>
-                    <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 5px;">Sinopsis Buku:</h4>
-                    <div id="detailDeskripsi" class="desc-content">
-                        </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // FUNGSI UNTUK MODAL PINJAM (EXISTING)
-        function tampilkanModalPinjam(urlAjukan) {
-            document.getElementById('modalPinjam').style.display = 'flex';
-            document.getElementById('btnKonfirmasiPinjam').href = urlAjukan;
-        }
-
-        function tutupModalPinjam() {
-            document.getElementById('modalPinjam').style.display = 'none';
-        }
-
-        // FUNGSI BARU UNTUK MODAL DESKRIPSI
-        function tampilkanModalDetail(judul, penulis, cover, deskripsi) {
-            // Isi teks
-            document.getElementById('detailJudul').innerText = judul;
-            document.getElementById('detailPenulis').innerText = penulis;
-            document.getElementById('detailDeskripsi').innerText = deskripsi;
-            
-            // Isi cover gambar
-            let coverContainer = document.getElementById('detailCoverContainer');
-            if (cover) {
-                coverContainer.innerHTML = `<img src="${cover}" style="width: 100%; height: 100%; object-fit: cover;">`;
-            } else {
-                coverContainer.innerHTML = `<i class="fa-solid fa-book" style="font-size: 40px; color: var(--primary);"></i>`;
-            }
-            
-            // Tampilkan Modal
-            document.getElementById('modalDetail').style.display = 'flex';
-        }
-
-        function tutupModalDetail() {
-            document.getElementById('modalDetail').style.display = 'none';
-        }
-    </script>
+    
 </body>
 </html>

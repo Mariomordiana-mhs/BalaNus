@@ -108,4 +108,5 @@ class ReminderController extends BaseController
             $this->wa->sendText($row['no_telp'], $pesan, 'Denda Terbentuk');
         }
     }
+    public function paymentDenda
 }

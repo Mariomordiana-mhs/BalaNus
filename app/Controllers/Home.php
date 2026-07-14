@@ -10,8 +10,9 @@ class Home extends BaseController
     public function index()
     {
         return view('welcome_message');
-    }                   
+    }                  
 
+    // --- FUNGSI UNTUK HALAMAN ADMIN ---
     // --- FUNGSI UNTUK HALAMAN ADMIN ---
     public function admin()
     {
@@ -23,20 +24,57 @@ class Home extends BaseController
             return redirect()->to('/member')->with('error', 'Akses ditolak! Anda bukan Admin.');
         }
 
-        // TAMBAHAN: Mengambil data pengajuan yang berstatus 'Menunggu ACC' secara live dari database
         $db = \Config\Database::connect();
+
+        // 1. Hitung Total Buku
+        $total_buku = $db->table('buku')->countAllResults();
+
+        // 2. Hitung Total Eksemplar 
+        // (Asumsi menggunakan tabel 'eksemplar'. Jika menggunakan field stok di tabel buku, 
+        // ganti menjadi: $db->table('buku')->selectSum('stok')->get()->getRow()->stok ?? 0;)
+        $total_eksemplar = $db->table('eksemplar')->countAllResults();
+
+        // 3. Hitung Peminjaman Aktif (Status 'Dipinjam')
+        $peminjaman_aktif = $db->table('peminjaman')->where('status', 'Dipinjam')->countAllResults();
+
+        // 4. Hitung Total Denda Belum Dibayar secara dinamis
+        $builderDenda = $db->table('peminjaman');
+        $builderDenda->select('tenggat_waktu');
+        $builderDenda->where('status', 'Dipinjam');
+        $builderDenda->where('tenggat_waktu <', date('Y-m-d')); // Melewati hari ini
+        $data_terlambat = $builderDenda->get()->getResultArray();
+
+        $total_denda = 0;
+        $tarif_denda_per_hari = 1000; // Sesuai dengan tarif sebelumnya
+
+        foreach ($data_terlambat as $row) {
+            $tenggat = strtotime($row['tenggat_waktu']);
+            $sekarang = strtotime(date('Y-m-d'));
+            $selisih_detik = $sekarang - $tenggat;
+            $hari_terlambat = floor($selisih_detik / (60 * 60 * 24));
+
+            if ($hari_terlambat > 0) {
+                $total_denda += ($hari_terlambat * $tarif_denda_per_hari);
+            }
+        }
+
+        // 5. Mengambil data pengajuan yang berstatus 'Menunggu ACC' secara live
         $builder = $db->table('peminjaman');
         $builder->select('peminjaman.*, buku.judul_buku, users.username');
         $builder->join('buku', 'buku.id_buku = peminjaman.id_buku');
         $builder->join('users', 'users.id_user = peminjaman.id_user');
-        $builder->where('peminjaman.status', 'Menunggu ACC'); // Ambil yang butuh tindakan ACC saja
+        $builder->where('peminjaman.status', 'Menunggu ACC');
         $builder->orderBy('peminjaman.tgl_pengajuan', 'ASC');
         $peminjaman_baru = $builder->get()->getResultArray();
 
-        // Mengirimkan variabel $peminjaman_baru ke view dashboard admin
+        // Kirim semua variabel ke view dashboard admin
         $data = [
-            'title' => 'Dashboard Admin - BalaNus',
-            'peminjaman_baru' => $peminjaman_baru
+            'title'            => 'Dashboard Admin - BalaNus',
+            'peminjaman_baru'  => $peminjaman_baru,
+            'total_buku'       => $total_buku,
+            'total_eksemplar'  => $total_eksemplar,
+            'peminjaman_aktif' => $peminjaman_aktif,
+            'total_denda'      => $total_denda
         ];
 
         return view('home_admin', $data); 
@@ -246,7 +284,6 @@ class Home extends BaseController
     // TAMBAHAN BARU: FUNGSI UNTUK ADMIN MENYETUJUI ATAU MENOLAK PINJAMAN
     // ====================================================================
 
-
     // Fungsi Meng-ACC Pengajuan
     public function acc_peminjaman($id_peminjaman)
     {
@@ -368,6 +405,107 @@ class Home extends BaseController
         ];
 
         return view('detail_buku', $data);
+    }
+
+    // --- FUNGSI UNTUK HALAMAN DENDA & TANGGUNGAN (MEMBER) ---
+    public function denda()
+    {
+        $session = session();
+        
+        // 1. Proteksi Halaman Member
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+
+        $db = \Config\Database::connect();
+        $id_user = $session->get('id_user');
+
+        // 2. Ambil data peminjaman milik user ini yang berstatus 'Dipinjam' dan sudah melewati tenggat waktu
+        $builder = $db->table('peminjaman');
+        $builder->select('peminjaman.*, buku.judul_buku');
+        $builder->join('buku', 'buku.id_buku = peminjaman.id_buku');
+        $builder->where('peminjaman.id_user', $id_user);
+        $builder->where('peminjaman.status', 'Dipinjam');
+        $builder->where('peminjaman.tenggat_waktu <', date('Y-m-d')); // Melebihi hari ini = Terlambat
+        $data_terlambat = $builder->get()->getResultArray();
+
+        $list_denda = [];
+        $total_denda = 0;
+        $tarif_denda_per_hari = 1000; // Tarif Rp 1.000 / hari sesuai display admin
+
+        // 3. Looping untuk menghitung selisih hari dan nominal denda secara real-time
+        foreach ($data_terlambat as $row) {
+            $tenggat = strtotime($row['tenggat_waktu']);
+            $sekarang = strtotime(date('Y-m-d'));
+            
+            // Hitung selisih hari
+            $selisih_detik = $sekarang - $tenggat;
+            $hari_terlambat = floor($selisih_detik / (60 * 60 * 24));
+
+            if ($hari_terlambat > 0) {
+                $nominal = $hari_terlambat * $tarif_denda_per_hari;
+                $total_denda += $nominal;
+
+                // Masukkan ke dalam array untuk dirender ke tabel View
+                $list_denda[] = [
+                    'judul_buku'     => $row['judul_buku'],
+                    'tenggat_waktu'  => $row['tenggat_waktu'],
+                    'hari_terlambat' => $hari_terlambat,
+                    'nominal'        => $nominal,
+                    'status_bayar'   => 'Belum Lunas'
+                ];
+            }
+        }
+
+        // 4. Kirim semua variabel ke view denda.php
+        $data = [
+            'title'       => 'Denda & Tanggungan - BalaNus',
+            'username'    => $session->get('username'),
+            'total_denda' => $total_denda,
+            'total_lunas' => 0, 
+            'list_denda'  => $list_denda
+        ];
+
+        return view('denda', $data); 
+    }
+
+    // ====================================================================
+    // FUNGSI UNTUK ADMIN MELUNASI DENDA & MENGEMBALIKAN BUKU AUTOMATICALLY
+    // ====================================================================
+    public function lunas_denda($id_peminjaman)
+    {
+        $session = session();
+        
+        // Proteksi khusus Admin
+        if (!$session->get('logged_in') || $session->get('role') !== 'admin') {
+            return redirect()->to('/login')->with('error', 'Akses ditolak.');
+        }
+
+        $modelPeminjaman = new \App\Models\ModelPeminjaman();
+        $modelBuku = new \App\Models\ModelBuku();
+
+        // 1. Cari data peminjaman berdasarkan ID
+        $peminjaman = $modelPeminjaman->find($id_peminjaman);
+
+        if ($peminjaman) {
+            $id_buku = $peminjaman['id_buku'];
+
+            // 2. Ubah status peminjaman menjadi 'Dikembalikan'
+            $modelPeminjaman->update($id_peminjaman, [
+                'status' => 'Dikembalikan'
+            ]);
+
+            // 3. Kembalikan stok buku (+1) karena buku fisik diserahkan kembali
+            $buku = $modelBuku->find($id_buku);
+            if ($buku) {
+                $modelBuku->update($id_buku, ['stok' => $buku['stok'] + 1]);
+            }
+
+            // 4. Redirect kembali ke dashboard admin denda dengan membawa flashdata sukses
+            return redirect()->back()->with('success', 'Pembayaran denda berhasil diterima dan buku otomatis ditandai sebagai dikembalikan.');
+        }
+
+        return redirect()->back()->with('error', 'Data peminjaman tidak ditemukan.');
     }
 
     public function api_docs()

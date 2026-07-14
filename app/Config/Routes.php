@@ -5,38 +5,57 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
+
+// =======================================================================
 // 1. Rute Publik (Bisa diakses siapa saja)
+// =======================================================================
 $routes->get('/', 'AuthController::index');
 $routes->get('login', 'AuthController::index');
 $routes->post('login-process', 'AuthController::auth');
-
 $routes->get('register', 'AuthController::register');
 $routes->post('register-process', 'AuthController::saveRegister');
-
 $routes->get('logout', 'AuthController::logout');
 
+// =======================================================================
 // 2. Rute Terproteksi (Hanya bisa diakses jika sudah Login)
+// =======================================================================
 $routes->get('admin', 'Home::admin', ['filter' => 'auth']);
 $routes->get('member', 'Home::member', ['filter' => 'auth']);
 
-// 3. Rute Aksi Peminjaman & Katalog (Member)
-$routes->get('peminjaman/batal/(:num)', 'Home::batalkan/$1', ['filter' => 'auth']);
+// =======================================================================
+// 3. Rute Aksi Peminjaman, Katalog & Denda (Khusus Member)
+// =======================================================================
+
+// Rute Peminjaman & Antrean (Baru)
+$routes->get('peminjaman', 'Peminjaman::index', ['filter' => 'auth']);
+$routes->get('peminjaman/batal/(:num)', 'Peminjaman::batal/$1', ['filter' => 'auth']);
+
+// Rute Lama dari Home (Kecuali batal yang sudah dipindah ke atas)
 $routes->get('peminjaman/detail/(:num)', 'Home::detail/$1', ['filter' => 'auth']);
 $routes->get('peminjaman/ajukan/(:num)', 'Home::ajukan/$1', ['filter' => 'auth']);
 $routes->get('peminjaman/saya', 'Home::riwayat_saya', ['filter' => 'auth']);
-$routes->get('katalog', 'Home::katalog', ['filter' => 'auth']);
 
-// ---> INI RUTE BARU UNTUK HALAMAN DETAIL BUKU <---
+// Rute Katalog
+$routes->get('katalog', 'Home::katalog', ['filter' => 'auth']);
 $routes->get('katalog/detail/(:num)', 'Home::detail_buku/$1', ['filter' => 'auth']);
 
+// Rute Denda & Pembayaran Midtrans
+$routes->get('denda', 'Denda::index', ['filter' => 'auth']);
+$routes->post('denda/get_snap_token', 'Denda::getSnapToken', ['filter' => 'auth']);
+$routes->post('denda/bayarToken', 'Denda::bayarToken');
 
-// 4. Rute Aksi Persetujuan Peminjaman (Admin - Mengarah ke Home Controller)
+//  baris ini di Rute Khusus Member
+$routes->get('riwayat', 'Riwayat::index', ['filter' => 'auth']);
+
+// =======================================================================
+// 4. Rute Aksi Persetujuan Peminjaman (Admin - Mengarah ke Home Lama)
+// =======================================================================
 $routes->get('admin/peminjaman/acc/(:num)', 'Home::acc_peminjaman/$1', ['filter' => 'auth']);
 $routes->get('admin/peminjaman/tolak/(:num)', 'Home::tolak_peminjaman/$1', ['filter' => 'auth']);
 $routes->get('admin/live_peminjaman', 'Home::live_peminjaman', ['filter' => 'auth']);  
 
 // =======================================================================
-// 5. Grup Rute Admin (Manajemen Data Master & Fisik)
+// 5. Grup Rute Admin (Manajemen Data Master, Transaksi & Fisik)
 // =======================================================================
 $routes->group('admin', ['filter' => 'auth'], function($routes) {
 
@@ -68,9 +87,10 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('pengembalian', 'Admin\Pengembalian::index');
     $routes->get('pengembalian/proses/(:num)', 'Admin\Pengembalian::proses/$1');
 
-    // --- Manajemen Denda (Admin) ---
+    // --- Manajemen Denda (Sisi Admin) ---
     $routes->get('denda', 'Admin\Denda::index');
-    $routes->get('denda/lunas/(:num)', 'Admin\Denda::lunas/$1');
+    $routes->get('denda/bayar/(:num)', 'Admin\Denda::bayar/$1');
+    $routes->get('denda/lunas/(:num)', 'Admin\Denda::lunas/$1'); 
 
     // --- Manajemen Laporan (Admin) ---
     $routes->get('laporan', 'Admin\Laporan::index');
@@ -80,13 +100,17 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('buku/cari_api/(:segment)', 'Admin\Buku::cariBukuViaApi/$1');
 
     $routes->get('api-docs', 'Home::api_docs');
-
-}); // <--- PENUTUP GRUP ADMIN SEKARANG BENAR DI SINI
-
+});
 
 // =======================================================================
-// 6. WEBSERVICE SERVER ENDPOINTS (Berdiri Sendiri, Aman dari 404)
+// 6. WEBSERVICE SERVER ENDPOINTS & WEBHOOK INTERNASIONAL
 // =======================================================================
+
+// ---> RUTE WEBHOOK MIDTRANS <---
+// Harus berada di luar filter autentikasi agar sistem Midtrans bisa masuk
+$routes->post('api/payment/callback', 'Api\Payment::callback');
+
+// Grup API Terproteksi Token
 $routes->group('api', ['filter' => 'api_auth'], function($routes) {
     $routes->get('books', 'Api\Books::index');
     $routes->get('books/(:any)', 'Api\Books::show/$1');

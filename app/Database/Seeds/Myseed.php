@@ -25,6 +25,7 @@ class Myseed extends Seeder
         $this->call('EksemplarSeeder');  // Buat fisik/eksemplar buku (Butuh ID Buku)
         $this->call('PeminjamanSeeder'); // Buat transaksi (Butuh ID User & ID Eksemplar)
         $this->call('LaporanSeeder');    // Buat laporan (Jika ada)
+        $this->call('NotificationSeeder'); // Buat notifikasi (Jika ada)
 
         // 4. Hidupkan kembali pengecekan relasi
         $this->db->enableForeignKeyChecks();
