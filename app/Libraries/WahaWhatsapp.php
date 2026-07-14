@@ -14,7 +14,7 @@ class WahaWhatsapp
     public function __construct()
     {
         $this->client = \Config\Services::curlrequest();
-        $this->baseUrl = 'https://kakap-05b0.sg-2.podo.top'; // URL dari screenshot dashboard WAHA kamu
+        $this->baseUrl = ''; // URL dari screenshot dashboard WAHA kamu
         $this->session = 'default';
         $this->db = \Config\Database::connect(); // Panggil koneksi database
     }
@@ -42,7 +42,7 @@ class WahaWhatsapp
                 'headers' => [
                     'Accept'       => 'application/json',
                     'Content-Type' => 'application/json',
-                    'X-Api-Key'    => '18d52585e8aaf006db790c770e051c57b30cdb1fdf1465a3' // Buka komentar ini jika pakai API Key
+                    'X-Api-Key'    => '' // Buka komentar ini jika pakai API Key
                 ],
                 'json' => [
                     'chatId'  => $chatId, // Sesuai spesifikasi payload

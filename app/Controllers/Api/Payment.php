@@ -11,7 +11,7 @@ class Payment extends BaseController
     public function callback()
     {
         // 1. Inisialisasi Kredensial Server Key
-        Config::$serverKey    = getenv('Mid-server-BSz7gEW_u5hU-jPQuokeUoA4');
+        Config::$serverKey    = getenv('MIDTRANS_SERVER_KEY'); //isi serverkey disini
         Config::$isProduction = false;
 
         try {

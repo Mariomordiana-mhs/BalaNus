@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-OPPqMA-OqJ9FUQ5W"></script>
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key=""></script>//masukan client key disini
     
     <style>
         :root { --primary: #005ce6; --primary-dark: #0044b3; --bg-color: #f5f7fb; --text-dark: #333; --text-muted: #888; --white: #ffffff; --border: #eaedf2; --sidebar-width: 260px; --danger: #d9534f; --success: #28a745; }

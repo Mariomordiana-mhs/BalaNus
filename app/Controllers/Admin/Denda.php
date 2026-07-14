@@ -65,7 +65,7 @@ class Denda extends BaseController
     public function bayarToken()
 {
     // Konfigurasi Midtrans
-    \Midtrans\Config::$serverKey = 'SERVER_KEY_ANDA';
+    \Midtrans\Config::$serverKey = 'MIDTRANS_SERVER_KEY';
     \Midtrans\Config::$isProduction = false; // false = mode sandbox/testing
     \Midtrans\Config::$isSanitized = true;
     \Midtrans\Config::$is3ds = true;

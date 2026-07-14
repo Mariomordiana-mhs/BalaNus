@@ -131,7 +131,7 @@ class Denda extends BaseController
 
         // 5. Konfigurasi Midtrans
         // JANGAN LUPA GANTI INI DENGAN SERVER KEY SANDBOX ANDA
-        \Midtrans\Config::$serverKey = 'Mid-server-BSz7gEW_u5hU-jPQuokeUoA4'; 
+        \Midtrans\Config::$serverKey = 'MIDTRANS_SERVER_KEY';//isi serverkey disini 
         \Midtrans\Config::$isProduction = false;
         \Midtrans\Config::$isSanitized = true;
         \Midtrans\Config::$is3ds = true;
